@@ -15,6 +15,7 @@ namespace Code_Road.Controllers
         {
             _questionService = questionService;
         }
+
         [HttpGet("GetAllQuestions")]
         public async Task<IActionResult> GetAllQuestions()
         {
@@ -79,6 +80,19 @@ namespace Code_Road.Controllers
                 if (status.Flag)
                     return Ok(status.Message); // deleted successfully
                 return BadRequest(status.Message); // if question not found
+            }
+            return BadRequest(ModelState);
+        }
+
+        [HttpDelete("DeleteAllQuizQuestions/{QuizId:int}")]
+        public async Task<IActionResult> DeleteAllQuizQuestions(int QuizId)
+        {
+            if (ModelState.IsValid)
+            {
+                StateDto status = await _questionService.DeleteAllQuizQuestions(QuizId);
+                if (status.Flag)
+                    return Ok(status.Message);
+                return BadRequest(status.Message);
             }
             return BadRequest(ModelState);
         }

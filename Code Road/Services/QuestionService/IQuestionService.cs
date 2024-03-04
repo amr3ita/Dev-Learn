@@ -10,5 +10,6 @@ namespace Code_Road.Services.QuestionService
         public Task<StateDto> AddQuestion(int QuizId, AddQuestionDto Model);
         public Task<StateDto> UpdateQuestion(int QuestionId, AddQuestionDto Model);
         public Task<StateDto> DeleteQuestion(int QuestionId);
+        public Task<StateDto> DeleteAllQuizQuestions(int QuizId);
     }
 }

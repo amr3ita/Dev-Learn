@@ -47,7 +47,7 @@ namespace Code_Road.Services.QuestionService
             }
             // if not found questions for quiz id
             state.Flag = false;
-            state.Message = "Not Found Questions For This Quiz Id";
+            state.Message = "Not Found Questions For This Quizzes Id";
             QuestionDetails.Status = state;
             return QuestionDetails;
         }
@@ -70,7 +70,7 @@ namespace Code_Road.Services.QuestionService
                 await _context.SaveChangesAsync();
                 return new StateDto { Flag = true, Message = "Added Successfully" };
             }
-            return new StateDto { Flag = false, Message = "This Quiz Not Found!!" };
+            return new StateDto { Flag = false, Message = "This Quizzes Not Found!!" };
         }
         public async Task<StateDto> UpdateQuestion(int QuestionId, AddQuestionDto Model)
         {
@@ -103,6 +103,17 @@ namespace Code_Road.Services.QuestionService
                 return new StateDto { Flag = true, Message = $"Question With Id {QuestionId} Deleted Successfully" };
             }
             return new StateDto { Flag = false, Message = $"There Is No Question With Id {QuestionId}" };
+        }
+        public async Task<StateDto> DeleteAllQuizQuestions(int QuizId)
+        {
+            List<Question> questions = await _context.Questions.Where(q => q.QuizId == QuizId).ToListAsync();
+            if (questions.Count > 0)
+            {
+                _context.Questions.RemoveRange(questions);
+                await _context.SaveChangesAsync();
+                return new StateDto { Flag = true, Message = "All Questions Deleted Successfully" };
+            }
+            return new StateDto { Flag = false, Message = "There Is No Questions For This Quiz Id" };
         }
     }
 }
