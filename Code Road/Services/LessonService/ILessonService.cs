@@ -1,5 +1,4 @@
-﻿using Code_Road.Dto;
-using Code_Road.Dto.Account;
+﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Lesson;
 
 namespace Code_Road.Services.LessonService

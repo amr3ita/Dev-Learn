@@ -1,5 +1,4 @@
-﻿using Code_Road.Dto;
-using Code_Road.Dto.Account;
+﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Lesson;
 using Code_Road.Models;
 using Code_Road.Services.PostService.AuthService;

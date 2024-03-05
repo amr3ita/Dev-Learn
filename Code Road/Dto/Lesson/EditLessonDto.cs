@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Code_Road.Dto
+namespace Code_Road.Dto.Lesson
 {
     public class EditLessonDto
     {
