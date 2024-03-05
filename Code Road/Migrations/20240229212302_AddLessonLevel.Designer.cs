@@ -4,6 +4,7 @@ using Code_Road.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Code_Road.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240229212302_AddLessonLevel")]
+    partial class AddLessonLevel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -34,7 +37,7 @@ namespace Code_Road.Migrations
 
                     b.HasIndex("FollowingId");
 
-                    b.ToTable("ApplicationUserApplicationUser", (string)null);
+                    b.ToTable("ApplicationUserApplicationUser");
                 });
 
             modelBuilder.Entity("Code_Road.Models.ApplicationUser", b =>
@@ -150,7 +153,7 @@ namespace Code_Road.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments", (string)null);
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Image", b =>
@@ -184,7 +187,7 @@ namespace Code_Road.Migrations
                         .IsUnique()
                         .HasFilter("[UserId] IS NOT NULL");
 
-                    b.ToTable("Image", (string)null);
+                    b.ToTable("Image");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Lesson", b =>
@@ -219,7 +222,7 @@ namespace Code_Road.Migrations
 
                     b.HasIndex("TopicId");
 
-                    b.ToTable("Lessons", (string)null);
+                    b.ToTable("Lessons");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Post", b =>
@@ -251,7 +254,7 @@ namespace Code_Road.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Posts", (string)null);
+                    b.ToTable("Posts");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Question", b =>
@@ -294,7 +297,7 @@ namespace Code_Road.Migrations
 
                     b.HasIndex("QuizId");
 
-                    b.ToTable("Questions", (string)null);
+                    b.ToTable("Questions");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Quiz", b =>
@@ -316,7 +319,7 @@ namespace Code_Road.Migrations
                     b.HasIndex("LessonId")
                         .IsUnique();
 
-                    b.ToTable("Quizzes", (string)null);
+                    b.ToTable("Quizzes");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Topic", b =>
@@ -333,7 +336,7 @@ namespace Code_Road.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Topics", (string)null);
+                    b.ToTable("Topics");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>

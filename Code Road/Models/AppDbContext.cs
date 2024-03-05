@@ -11,6 +11,7 @@ namespace Code_Road.Models
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
+        public DbSet<Image> Image { get; set; }
         public AppDbContext()
         {
 
