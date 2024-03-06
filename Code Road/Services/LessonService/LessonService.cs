@@ -1,11 +1,7 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Lesson;
 using Code_Road.Models;
-<<<<<<< HEAD
-using Code_Road.Services.PostService.AuthService;
-=======
 using Code_Road.Services.QuizService;
->>>>>>> master
 using Microsoft.EntityFrameworkCore;
 
 namespace Code_Road.Services.LessonService
@@ -15,24 +11,14 @@ namespace Code_Road.Services.LessonService
         private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpContextAccessor _httpContextAccessor;
-<<<<<<< HEAD
-        private readonly IAuthService _authService;
-
-        public LessonService(AppDbContext context, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IAuthService authService)
-=======
         private readonly IQuizService _quizService;
 
         public LessonService(AppDbContext context, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IQuizService quizService)
->>>>>>> master
         {
             _context = context;
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
-<<<<<<< HEAD
-            _authService = authService;
-=======
             _quizService = quizService;
->>>>>>> master
         }
 
         #region Public Section
@@ -73,15 +59,7 @@ namespace Code_Road.Services.LessonService
                 Level = lesson.Level,
                 Topic = lesson.topic.Name,
                 Img = await _context.Image.Where(l => l.LessonId == id).Select(i => i.ImageUrl).ToListAsync(),
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-                QuizId = lesson.Quiz.Id,//(await _context.Quizzes.FirstOrDefaultAsync(l => l.Id == lesson.Quiz.Id)).Id,
-=======
-                //QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
->>>>>>> Stashed changes
-=======
                 QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
->>>>>>> master
                 State = state
             };
 
@@ -121,31 +99,16 @@ namespace Code_Road.Services.LessonService
             Topic? topic = await _context.Topics.FirstOrDefaultAsync(t => t.Name == model.TopicName);
             if (topic is null)
                 return new LessonDto() { State = state };
-<<<<<<< HEAD
-            //state.Message = "This Quiz is not found";
-            //Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == model.Quiz);
-            //if (quiz is null)
-            //    return new LessonDto() { State = state };
-=======
 
->>>>>>> master
             state.Flag = true;
             state.Message = "done";
             lesson.Name = model.Name;
             lesson.Explanation = model.Explanation;
             lesson.Level = model.Level;
             lesson.TopicId = topic.Id;
-<<<<<<< HEAD
-            //lesson.Quiz = quiz;
-            state.Message = "This user is not found";
-            //if ((await _authService.GetSignedInUserAsync()) is null)
-            //    return new LessonDto() { State = state };
-            //lesson.ApplicationUserId = (await _authService.GetSignedInUserAsync()).ToString();
-=======
 
             state.Message = "This user is not found";
 
->>>>>>> master
             await _context.Lessons.AddAsync(lesson);
             await _context.SaveChangesAsync();
             if (model.Images is not null && model.Images.Count > 0)
@@ -164,85 +127,39 @@ namespace Code_Road.Services.LessonService
             if (oldLesson is null)
                 return new LessonDto() { State = state };
             state.Message = "This Name already exist";
-<<<<<<< HEAD
-            List<Lesson> lessons = await _context.Lessons.Where(l => l.Name == model.Name).ToListAsync();
-            if (lessons.Count > 1)
-=======
             if (await _context.Lessons.FirstOrDefaultAsync(l => l.Name == model.Name) is not null)
->>>>>>> master
                 return new LessonDto() { State = state };
             state.Message = "This Topic Name is not found";
             Topic? topic = await _context.Topics.FirstOrDefaultAsync(t => t.Name == model.TopicName);
             if (topic is null)
                 return new LessonDto() { State = state };
-<<<<<<< HEAD
-            //state.Message = "This Quiz is not found";
-            //Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == model.Quiz);
-            //if (quiz is null)
-            //    return new LessonDto() { State = state };
-            oldLesson.Name = model.Name;
-            oldLesson.Level = model.Level;
-            oldLesson.Explanation = model.Explanation;
-            oldLesson.TopicId = topic.Id;
-            //oldLesson.Quiz = quiz;
-=======
 
             oldLesson.Name = model.Name;
             oldLesson.Explanation = model.Explanation;
             oldLesson.TopicId = topic.Id;
 
->>>>>>> master
             await _context.SaveChangesAsync();
             return await GetLessonById(oldLesson.Id);
         }
         public async Task<StateDto> DeleteLesson(int id)
         {
-<<<<<<< HEAD
-            Lesson? oldLesson = await _context.Lessons.Include(l => l.topic).FirstOrDefaultAsync(l => l.Id == id);
-=======
             Lesson? oldLesson = await _context.Lessons.Include(l => l.topic).Include(l => l.Quiz).FirstOrDefaultAsync(l => l.Id == id);
->>>>>>> master
             StateDto state = new StateDto() { Flag = false };
             state.Message = "There is no Lesson with this id";
             if (oldLesson is null)
                 return state;
-<<<<<<< HEAD
-
-=======
             state.Message = "This Quiz is not found";
             Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == oldLesson.Quiz.Id);
             if (quiz is null)
                 return state;
->>>>>>> master
             List<Image> images = await _context.Image.Where(l => l.LessonId == id).ToListAsync();
             if (images.Count > 0)
             {
                 _context.Image.RemoveRange(images);
                 await DeleteImageFile(oldLesson.topic.Name, oldLesson.Name);
             }
-<<<<<<< HEAD
-<<<<<<< Updated upstream
-            _context.Quizzes.Remove(quiz);
-            _context.Lessons.Remove(oldLesson);
-=======
-            Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == q.LessonId);
-            if (quiz is not null)
-            {
-                await _quizService.DeleteQuiz(quiz.Id);
-                _context.Lessons.Remove(oldLesson);
-
-            }
-            else
-            {
-                _context.Lessons.Remove(oldLesson);
-
-            }
-
->>>>>>> Stashed changes
-=======
             await _quizService.DeleteQuiz(quiz.Id);
             _context.Lessons.Remove(oldLesson);
->>>>>>> master
             _context.SaveChanges();
             state.Flag = true;
             state.Message = "Deleted Successfully";
