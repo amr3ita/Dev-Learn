@@ -59,9 +59,10 @@ namespace Code_Road.Services.LessonService
                 Level = lesson.Level,
                 Topic = lesson.topic.Name,
                 Img = await _context.Image.Where(l => l.LessonId == id).Select(i => i.ImageUrl).ToListAsync(),
-                QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
+                //QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
                 State = state
             };
+
 
         }
         public async Task<LessonDto> GetLessonByName(string name)
@@ -127,7 +128,8 @@ namespace Code_Road.Services.LessonService
             if (oldLesson is null)
                 return new LessonDto() { State = state };
             state.Message = "This Name already exist";
-            if (await _context.Lessons.FirstOrDefaultAsync(l => l.Name == model.Name) is not null)
+            List<Lesson> lessons = await _context.Lessons.Where(l => l.Name == model.Name).ToListAsync();
+            if (lessons.Count > 1)
                 return new LessonDto() { State = state };
             state.Message = "This Topic Name is not found";
             Topic? topic = await _context.Topics.FirstOrDefaultAsync(t => t.Name == model.TopicName);
@@ -135,6 +137,7 @@ namespace Code_Road.Services.LessonService
                 return new LessonDto() { State = state };
 
             oldLesson.Name = model.Name;
+            oldLesson.Level = model.Level;
             oldLesson.Explanation = model.Explanation;
             oldLesson.TopicId = topic.Id;
 
@@ -143,23 +146,32 @@ namespace Code_Road.Services.LessonService
         }
         public async Task<StateDto> DeleteLesson(int id)
         {
-            Lesson? oldLesson = await _context.Lessons.Include(l => l.topic).Include(l => l.Quiz).FirstOrDefaultAsync(l => l.Id == id);
+            Lesson? oldLesson = await _context.Lessons.Include(l => l.topic).FirstOrDefaultAsync(l => l.Id == id);
             StateDto state = new StateDto() { Flag = false };
             state.Message = "There is no Lesson with this id";
             if (oldLesson is null)
                 return state;
-            state.Message = "This Quiz is not found";
-            Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == oldLesson.Quiz.Id);
-            if (quiz is null)
-                return state;
+
+
             List<Image> images = await _context.Image.Where(l => l.LessonId == id).ToListAsync();
             if (images.Count > 0)
             {
                 _context.Image.RemoveRange(images);
                 await DeleteImageFile(oldLesson.topic.Name, oldLesson.Name);
             }
-            await _quizService.DeleteQuiz(quiz.Id);
-            _context.Lessons.Remove(oldLesson);
+            Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == q.LessonId);
+            if (quiz is not null)
+            {
+                await _quizService.DeleteQuiz(quiz.Id);
+                _context.Lessons.Remove(oldLesson);
+
+            }
+            else
+            {
+                _context.Lessons.Remove(oldLesson);
+
+            }
+
             _context.SaveChanges();
             state.Flag = true;
             state.Message = "Deleted Successfully";
@@ -200,8 +212,6 @@ namespace Code_Road.Services.LessonService
                 await _context.SaveChangesAsync();
                 counter++;
             }
-
-
 
 
             return images;

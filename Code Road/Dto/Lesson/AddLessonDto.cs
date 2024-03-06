@@ -15,6 +15,5 @@ namespace Code_Road.Dto.Lesson
         public string? TopicName { get; set; }
         [Required]
         public FormFileCollection? Images { get; set; }
-        public int? Quiz { get; set; }
     }
 }

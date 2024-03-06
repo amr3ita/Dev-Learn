@@ -10,7 +10,6 @@ namespace Code_Road.Services.QuizService
     {
         private readonly AppDbContext _context;
         private readonly IQuestionService _question;
-
         public QuizService(AppDbContext context, IQuestionService question)
         {
             _context = context;
