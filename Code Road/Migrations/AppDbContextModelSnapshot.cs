@@ -266,7 +266,7 @@ namespace Code_Road.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MinDegree")
+                    b.Property<int>("Degree")
                         .HasColumnType("int");
 
                     b.Property<string>("Option1")
@@ -297,7 +297,7 @@ namespace Code_Road.Migrations
                     b.ToTable("Questions", (string)null);
                 });
 
-            modelBuilder.Entity("Code_Road.Models.Quiz", b =>
+            modelBuilder.Entity("Code_Road.Models.Quizzes", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -308,7 +308,7 @@ namespace Code_Road.Migrations
                     b.Property<int>("LessonId")
                         .HasColumnType("int");
 
-                    b.Property<int>("TotalDegree")
+                    b.Property<int?>("TotalDegree")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
@@ -552,20 +552,20 @@ namespace Code_Road.Migrations
 
             modelBuilder.Entity("Code_Road.Models.Question", b =>
                 {
-                    b.HasOne("Code_Road.Models.Quiz", "Quiz")
+                    b.HasOne("Code_Road.Models.Quizzes", "Quizzes")
                         .WithMany("Questions")
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Quiz");
+                    b.Navigation("Quizzes");
                 });
 
-            modelBuilder.Entity("Code_Road.Models.Quiz", b =>
+            modelBuilder.Entity("Code_Road.Models.Quizzes", b =>
                 {
                     b.HasOne("Code_Road.Models.Lesson", "Lesson")
-                        .WithOne("Quiz")
-                        .HasForeignKey("Code_Road.Models.Quiz", "LessonId")
+                        .WithOne("Quizzes")
+                        .HasForeignKey("Code_Road.Models.Quizzes", "LessonId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -637,7 +637,7 @@ namespace Code_Road.Migrations
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("Quiz")
+                    b.Navigation("Quizzes")
                         .IsRequired();
                 });
 
@@ -648,7 +648,7 @@ namespace Code_Road.Migrations
                     b.Navigation("comments");
                 });
 
-            modelBuilder.Entity("Code_Road.Models.Quiz", b =>
+            modelBuilder.Entity("Code_Road.Models.Quizzes", b =>
                 {
                     b.Navigation("Questions");
                 });

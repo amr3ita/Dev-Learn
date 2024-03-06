@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Code_Road.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240226230447_CreateDataBasev1")]
-    partial class CreateDataBasev1
+    [Migration("20240301080302_UpdateQuestionTable")]
+    partial class UpdateQuestionTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -172,14 +172,20 @@ namespace Code_Road.Migrations
                         .HasColumnType("int");
 
                     b.Property<int?>("PostId")
-                        .IsRequired()
                         .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("LessonId");
 
                     b.HasIndex("PostId");
+
+                    b.HasIndex("UserId")
+                        .IsUnique()
+                        .HasFilter("[UserId] IS NOT NULL");
 
                     b.ToTable("Image");
                 });
@@ -259,7 +265,7 @@ namespace Code_Road.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("MinDegree")
+                    b.Property<int>("Degree")
                         .HasColumnType("int");
 
                     b.Property<string>("Option1")
@@ -504,13 +510,17 @@ namespace Code_Road.Migrations
 
                     b.HasOne("Code_Road.Models.Post", "Post")
                         .WithMany("Images")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("PostId");
+
+                    b.HasOne("Code_Road.Models.ApplicationUser", "User")
+                        .WithOne("Image")
+                        .HasForeignKey("Code_Road.Models.Image", "UserId");
 
                     b.Navigation("Lesson");
 
                     b.Navigation("Post");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Lesson", b =>
@@ -615,6 +625,9 @@ namespace Code_Road.Migrations
             modelBuilder.Entity("Code_Road.Models.ApplicationUser", b =>
                 {
                     b.Navigation("FinishedTopics");
+
+                    b.Navigation("Image")
+                        .IsRequired();
 
                     b.Navigation("Posts");
                 });
