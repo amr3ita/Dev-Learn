@@ -10,10 +10,6 @@ namespace Code_Road.Dto.Lesson
         public string? Level { get; set; }
         public List<string>? Img { get; set; }
         public string? Topic { get; set; }
-<<<<<<< HEAD
-
-=======
         public int? QuizId { get; set; }
->>>>>>> master
     }
 }

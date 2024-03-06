@@ -12,11 +12,7 @@ namespace Code_Road.Dto.Lesson
         public string? Level { get; set; }
         [Required]
         public string? TopicName { get; set; }
-<<<<<<< HEAD
-
-=======
         public int? Quiz { get; set; }
->>>>>>> master
 
     }
 }
