@@ -27,7 +27,7 @@ namespace Code_Road.Controllers
             return BadRequest("Ther is no quizzes");
         }
 
-        [HttpPost("GetQuizById/{QuizId:int}")]
+        [HttpGet("GetQuizById/{QuizId:int}")]
         public async Task<IActionResult> GetQuizById(int QuizId)
         {
             if (ModelState.IsValid)
