@@ -27,6 +27,10 @@ namespace Code_Road.Models
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            builder.Entity<Image>(entity =>
+            {
+                entity.HasIndex(e => e.UserId).IsUnique(false);
+            });
         }
     }
 }
