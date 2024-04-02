@@ -23,7 +23,7 @@ namespace Code_Road.Controllers
                 return BadRequest(topicDtos[0].State.Message);
             return Ok(topicDtos);
         }
-        [HttpGet("get topic By id")]
+        [HttpGet("GetTopicById")]
         public async Task<IActionResult> GetTopicById(int id)
         {
             if (!ModelState.IsValid)
@@ -33,7 +33,7 @@ namespace Code_Road.Controllers
                 return BadRequest(topic.State.Message);
             return Ok(topic);
         }
-        [HttpGet("get topic By Name")]
+        [HttpGet("GetTopicByName")]
         public async Task<IActionResult> GetTopicByName(string name)
         {
             if (!ModelState.IsValid)
@@ -43,7 +43,7 @@ namespace Code_Road.Controllers
                 return BadRequest(topic.State.Message);
             return Ok(topic);
         }
-        [HttpPost("Add Topic{name:alpha}")]
+        [HttpPost("AddTopic/{name:alpha}")]
         public async Task<IActionResult> AddTopic(string name)
         {
             if (!ModelState.IsValid)
@@ -53,7 +53,7 @@ namespace Code_Road.Controllers
                 return BadRequest(topic.State.Message);
             return Ok(topic);
         }
-        [HttpPut("Edit Topic{id:int}")]
+        [HttpPut("EditTopic/{id:int}")]
         public async Task<IActionResult> EditTopic(int id, [FromBody] string name)
         {
             if (!ModelState.IsValid)
@@ -63,7 +63,7 @@ namespace Code_Road.Controllers
                 return BadRequest(topic.State.Message);
             return Ok(topic);
         }
-        [HttpDelete("Delete Topic{id:int}")]
+        [HttpDelete("DeleteTopic/{id:int}")]
         public async Task<IActionResult> DeleteTopic(int id)
         {
             if (!ModelState.IsValid)

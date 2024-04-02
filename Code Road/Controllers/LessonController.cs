@@ -15,7 +15,7 @@ namespace Code_Road.Controllers
         {
             _lessonService = lessonService;
         }
-        [HttpGet("Get List of Lessons")]
+        [HttpGet("GetListOfLessons")]
         public async Task<IActionResult> GetAllLessons()
         {
             List<LessonDetailsDto> lessons = await _lessonService.GetAllLessons();
@@ -23,7 +23,7 @@ namespace Code_Road.Controllers
                 return BadRequest(lessons[0].State.Message);
             return Ok(lessons);
         }
-        [HttpGet("Get Lesson By Id")]
+        [HttpGet("GetLessonById")]
         public async Task<IActionResult> GetLessonById(int id)
         {
             LessonDto lesson = await _lessonService.GetLessonById(id);
@@ -31,7 +31,7 @@ namespace Code_Road.Controllers
                 return BadRequest(lesson.State.Message);
             return Ok(lesson);
         }
-        [HttpGet("Get Lesson By Name")]
+        [HttpGet("GetLessonByName")]
         public async Task<IActionResult> GetLessonByName(string name)
         {
             LessonDto lesson = await _lessonService.GetLessonByName(name);
@@ -39,7 +39,7 @@ namespace Code_Road.Controllers
                 return BadRequest(lesson.State.Message);
             return Ok(lesson);
         }
-        [HttpPost("Add Lesson")]
+        [HttpPost("AddLesson")]
         //[Authorize(Roles = "Admin")]
         //ValidateAntiForgeryToken]
         public async Task<IActionResult> AddLesson([FromForm] AddLessonDto model)
@@ -51,7 +51,7 @@ namespace Code_Road.Controllers
                 return BadRequest(lesson.State.Message);
             return Ok(lesson);
         }
-        [HttpPatch("edit Lesson")]
+        [HttpPatch("EditLesson")]
         //ValidateAntiForgeryToken]
         public async Task<IActionResult> EditLesson(int id, [FromForm] EditLessonDto model)
         {
@@ -62,7 +62,7 @@ namespace Code_Road.Controllers
                 return BadRequest(lesson.State.Message);
             return Ok(lesson);
         }
-        [HttpDelete("Delete Lesson")]
+        [HttpDelete("DeleteLesson")]
         //ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteLesson(int id)
         {

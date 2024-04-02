@@ -15,7 +15,7 @@ namespace Code_Road.Controllers
         {
             _commentService = commentService;
         }
-        [HttpGet("Comments for Post({postId:int})")]
+        [HttpGet("CommentsForPost({postId:int})")]
         public async Task<IActionResult> GetComments(int postId)
         {
             if (!ModelState.IsValid)
@@ -38,7 +38,7 @@ namespace Code_Road.Controllers
                 return BadRequest(comment.State.Message);
             return Ok(comment);
         }
-        [HttpDelete("user Delete his comment")]
+        [HttpDelete("UserDeleteHisComment")]
 
         public async Task<IActionResult> DeleteComment(int commentId, int postId, string userId)
         {
@@ -50,7 +50,7 @@ namespace Code_Road.Controllers
                 return BadRequest(state.Message);
             return Ok(state.Message);
         }
-        [HttpPost("user Add this cooment")]
+        [HttpPost("UserAddThisCooment")]
         public async Task<IActionResult> AddComment(int postId, string userId, EditDto model)
         {
             if (!ModelState.IsValid)
