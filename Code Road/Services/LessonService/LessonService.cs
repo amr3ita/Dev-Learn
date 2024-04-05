@@ -135,11 +135,13 @@ namespace Code_Road.Services.LessonService
             Topic? topic = await _context.Topics.FirstOrDefaultAsync(t => t.Name == model.TopicName);
             if (topic is null)
                 return new LessonDto() { State = state };
-
+            List<Image> images = await ChangeDirctoryName(oldLesson.Id, oldLesson.Name, oldLesson.topic.Name, model.Name, model.TopicName);
             oldLesson.Name = model.Name;
             oldLesson.Level = model.Level;
             oldLesson.Explanation = model.Explanation;
             oldLesson.TopicId = topic.Id;
+            if (images is not null)
+                oldLesson.Images = images;
 
             await _context.SaveChangesAsync();
             return await GetLessonById(oldLesson.Id);
@@ -195,7 +197,7 @@ namespace Code_Road.Services.LessonService
             foreach (var file in files)
             {
                 Image image = new Image();
-                string imagePath = filePath + "\\" + lessonName + "(" + counter + ").png";
+                string imagePath = filePath + "\\" + "(" + counter + ").png";
                 if (File.Exists(imagePath))
                 {
                     File.Delete(imagePath);
@@ -204,7 +206,7 @@ namespace Code_Road.Services.LessonService
                 {
                     await file.CopyToAsync(stream);
                 }
-                string imageUrl = baseUrl + "/Upload/Lessons/" + topicName + "/" + lessonName + "/" + lessonName + "(" + counter + ").png";
+                string imageUrl = baseUrl + "/Upload/Lessons/" + topicName + "/" + lessonName + "/" + "(" + counter + ").png";
                 image.ImageUrl = imageUrl;
                 image.LessonId = lesson_id;
                 images.Add(image);
@@ -215,6 +217,31 @@ namespace Code_Road.Services.LessonService
 
 
             return images;
+        }
+        private async Task<List<Image>> ChangeDirctoryName(int id, string oldName, string oldTopicName, string newName, string newTopicName)
+        {
+            string filePath = await GetGilePath(oldTopicName, oldName);
+            string newFilePath = await GetGilePath(newTopicName, newName);
+            var httpContext = _httpContextAccessor.HttpContext;
+            var baseUrl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+            int counter = 1;
+            List<Image> images = _context.Image.Where(i => i.LessonId == id).ToList();
+            if (images.Count > 0)
+            {
+                if (Directory.Exists(filePath))
+                {
+                    Directory.Move(filePath, newFilePath);
+                }
+                foreach (Image image in images)
+                {
+                    image.ImageUrl = baseUrl + "/Upload/Lessons/" + newTopicName + "/" + newName + "/" + "(" + counter + ").png";
+                    counter++;
+                }
+                await _context.SaveChangesAsync();
+                return images;
+            }
+            return null;
+
         }
         private async Task<string> GetGilePath(string topicName, string lessonName)
         {
