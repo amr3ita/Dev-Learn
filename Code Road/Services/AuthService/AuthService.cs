@@ -165,5 +165,16 @@ namespace Code_Road.Services.PostService.AuthService
             await _userManager.AddToRoleAsync(user, model.Role);
             return new StateDto() { Flag = true, Message = "User Added To Role Successfully" };
         }
+
+        // Get user Name
+        public async Task<string> GetUserName(string Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user is not null)
+                return user.FirstName + " " + user.LastName;
+            return string.Empty;
+        }
+
+        // 
     }
 }
