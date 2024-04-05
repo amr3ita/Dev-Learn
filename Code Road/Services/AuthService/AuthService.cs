@@ -165,5 +165,6 @@ namespace Code_Road.Services.PostService.AuthService
             await _userManager.AddToRoleAsync(user, model.Role);
             return new StateDto() { Flag = true, Message = "User Added To Role Successfully" };
         }
+
     }
 }
