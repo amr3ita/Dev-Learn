@@ -6,6 +6,7 @@ namespace Code_Road.Dto.Comment
     public class CommentDto
     {
         public StateDto State { get; set; }
+        public int? Id { get; set; }
         public string? UserName { get; set; }
         [Required]
         public string? Content { get; set; }

@@ -166,5 +166,13 @@ namespace Code_Road.Services.PostService.AuthService
             return new StateDto() { Flag = true, Message = "User Added To Role Successfully" };
         }
 
+
+        public async Task<string> GetUserName(string Id)
+        {
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user is not null)
+                return user.FirstName + " " + user.LastName;
+            return string.Empty;
+        }
     }
 }
