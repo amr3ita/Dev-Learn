@@ -189,25 +189,18 @@ namespace Code_Road.Services.PostService.AuthService
                     {
                         status.Flag = true;
                         status.Message = "Password Updated Successfully";
+                        return status;
                     }
                     else
                     {
                         status.Flag = false;
                         status.Message = result.Errors.ToString();
+                        return status;
                     }
                 }
-                else
-                {
-                    status.Flag = false;
-                    status.Message = "Old Password Not Correct";
-                }
             }
-            else
-            {
-                status.Flag = false;
-                status.Message = "This user Not Found";
-            }
-
+            status.Flag = false;
+            status.Message = "Old Password or Email Incorrect";
             return status;
         }
 
@@ -232,31 +225,19 @@ namespace Code_Road.Services.PostService.AuthService
                         {
                             status.Flag = true;
                             status.Message = "User Deleted Successfully";
-                        }
-                        else
-                        {
-                            status.Flag = false;
-                            status.Message = result.Errors.ToString();
+                            return status;
                         }
                     }
-                    else
-                    {
-                        status.Flag = false;
-                        status.Message = result.Errors.ToString();
-                    }
-                }
-                else
-                {
                     status.Flag = false;
-                    status.Message = "You Don't have The Permission To Delete User";
-
+                    status.Message = result.Errors.ToString();
+                    return status;
                 }
-            }
-            else
-            {
                 status.Flag = false;
-                status.Message = "admin or user email not found";
+                status.Message = "You Don't have Permission To Delete User";
+                return status;
             }
+            status.Flag = false;
+            status.Message = "Admin or User Email Incorrect";
             return status;
         }
     }
