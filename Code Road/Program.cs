@@ -67,6 +67,12 @@ namespace Code_Road
                 };
             });
 
+            // require email address
+            builder.Services.Configure<IdentityOptions>(opt =>
+            {
+                opt.SignIn.RequireConfirmedEmail = true;
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

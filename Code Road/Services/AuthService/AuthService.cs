@@ -80,6 +80,7 @@ namespace Code_Road.Services.PostService.AuthService
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
             };
 
+
         }
 
         // Generate Token
