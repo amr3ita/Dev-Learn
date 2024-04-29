@@ -3,6 +3,7 @@ using Code_Road.Dto.Account.Enum;
 using Code_Road.Helpers;
 using Code_Road.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -21,6 +22,12 @@ namespace Code_Road.Services.PostService.AuthService
             _userManager = userManager;
             _roleManager = roleManager;
             _Jwt = Jwt.Value;
+        }
+
+        // Get All Users
+        public async Task<List<UsersDto>> GetAllUsers()
+        {
+            return await _userManager.Users.Select(u => new UsersDto { Name = $"{u.FirstName} {u.LastName}", UserName = u.UserName, Email = u.Email }).ToListAsync();
         }
 
         // Register
@@ -204,7 +211,6 @@ namespace Code_Road.Services.PostService.AuthService
             status.Message = "Old Password or Email Incorrect";
             return status;
         }
-
 
         // admin Delete User ==> you should delete anything related to this user from all tables
         public async Task<StateDto> DeleteUser(DeleteUserDto model)
