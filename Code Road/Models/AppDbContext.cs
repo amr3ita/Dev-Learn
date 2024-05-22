@@ -12,6 +12,8 @@ namespace Code_Road.Models
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
         public DbSet<Image> Image { get; set; }
+        public DbSet<Follow> Follow { get; set; }
+
         public AppDbContext()
         {
 
@@ -30,6 +32,10 @@ namespace Code_Road.Models
             builder.Entity<Image>(entity =>
             {
                 entity.HasIndex(e => e.UserId).IsUnique(false);
+            });
+            builder.Entity<Follow>(enitity =>
+            {
+                enitity.HasKey(k => new { k.FollowerId, k.FollowingId });
             });
         }
     }
