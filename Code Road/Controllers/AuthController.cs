@@ -15,6 +15,15 @@ namespace Code_Road.Controllers
             _authService = authService;
         }
 
+        //[Authorize(Roles = "Admin")]
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _authService.GetAllUsers();
+
+            return Ok(users);
+        }
+
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody] SignUpDto model)
         {
@@ -52,5 +61,36 @@ namespace Code_Road.Controllers
 
             return Ok(state.Message);
         }
+
+        [HttpPut("UpdatePassword")]
+        public async Task<IActionResult> UpdatePasswordAsync(UpdatePasswordDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (!model.OldPassword.Equals(model.NewPassword))
+                {
+                    StateDto status = await _authService.UpdatePassword(model);
+                    if (status.Flag)
+                        return Ok(status.Message);
+                    return BadRequest(status.Message);
+                }
+                return BadRequest("Old Password and New Password Should be Different");
+            }
+            return BadRequest(ModelState);
+        }
+
+        [HttpDelete("DeleteUser")]
+        public async Task<IActionResult> DeleteUserAsync(DeleteUserDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                StateDto status = await _authService.DeleteUser(model);
+                if (status.Flag)
+                    return Ok(status.Message);
+                return BadRequest(status.Message);
+            }
+            return BadRequest(ModelState);
+        }
+
     }
 }

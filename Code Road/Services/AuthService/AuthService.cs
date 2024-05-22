@@ -3,6 +3,7 @@ using Code_Road.Dto.Account.Enum;
 using Code_Road.Helpers;
 using Code_Road.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,6 +24,12 @@ namespace Code_Road.Services.PostService.AuthService
             _Jwt = Jwt.Value;
         }
 
+        // Get All Users
+        public async Task<List<UsersDto>> GetAllUsers()
+        {
+            return await _userManager.Users.Select(u => new UsersDto { Name = $"{u.FirstName} {u.LastName}", UserName = u.UserName, Email = u.Email }).ToListAsync();
+        }
+
         // Register
         public async Task<AuthDto> RegisterAsync(SignUpDto model)
         {
@@ -31,7 +38,6 @@ namespace Code_Road.Services.PostService.AuthService
             if (await _userManager.FindByEmailAsync(model.Email) is not null)
             {
                 state.Flag = false;
-                state.Message = "This Email Is Exist!!";
                 return new AuthDto() { Status = state };
             }
             // If userName is exit
@@ -80,6 +86,7 @@ namespace Code_Road.Services.PostService.AuthService
                 Roles = new List<string> { Roles.User.ToString() },
                 Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken)
             };
+
 
         }
 
@@ -166,7 +173,7 @@ namespace Code_Road.Services.PostService.AuthService
             return new StateDto() { Flag = true, Message = "User Added To Role Successfully" };
         }
 
-        // Get user Name
+        // get user name from id
         public async Task<string> GetUserName(string Id)
         {
             var user = await _userManager.FindByIdAsync(Id);
@@ -175,6 +182,70 @@ namespace Code_Road.Services.PostService.AuthService
             return string.Empty;
         }
 
-        // 
+        // Update Password
+        public async Task<StateDto> UpdatePassword(UpdatePasswordDto model)
+        {
+            StateDto status = new StateDto();
+            var user = await _userManager.FindByEmailAsync(model.Gmail);
+            if (user is not null)
+            {
+                bool isTrue = await _userManager.CheckPasswordAsync(user, model.OldPassword);
+                if (isTrue)
+                {
+                    var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                    if (result.Succeeded)
+                    {
+                        status.Flag = true;
+                        status.Message = "Password Updated Successfully";
+                        return status;
+                    }
+                    else
+                    {
+                        status.Flag = false;
+                        status.Message = result.Errors.ToString();
+                        return status;
+                    }
+                }
+            }
+            status.Flag = false;
+            status.Message = "Old Password or Email Incorrect";
+            return status;
+        }
+
+        // admin Delete User ==> you should delete anything related to this user from all tables
+        public async Task<StateDto> DeleteUser(DeleteUserDto model)
+        {
+            StateDto status = new StateDto();
+            var admin = await _userManager.FindByEmailAsync(model.AdminGmail);
+            var user = await _userManager.FindByEmailAsync(model.UserGmail);
+
+            if (admin is not null && user is not null)
+            {
+                bool isAdmin = await _userManager.IsInRoleAsync(admin, "Admin");
+                if (isAdmin)
+                {
+                    var result = await _userManager.RemoveFromRoleAsync(user, "User");
+                    if (result.Succeeded)
+                    {
+                        result = await _userManager.DeleteAsync(user);
+                        if (result.Succeeded)
+                        {
+                            status.Flag = true;
+                            status.Message = "User Deleted Successfully";
+                            return status;
+                        }
+                    }
+                    status.Flag = false;
+                    status.Message = result.Errors.ToString();
+                    return status;
+                }
+                status.Flag = false;
+                status.Message = "You Don't have Permission To Delete User";
+                return status;
+            }
+            status.Flag = false;
+            status.Message = "Admin or User Email Incorrect";
+            return status;
+        }
     }
 }
