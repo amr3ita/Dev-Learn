@@ -7,6 +7,7 @@ using Code_Road.Services.PostService.AuthService;
 using Code_Road.Services.QuestionService;
 using Code_Road.Services.QuizService;
 using Code_Road.Services.TopicService;
+using Code_Road.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -34,7 +35,9 @@ namespace Code_Road
             builder.Services.AddScoped<IQuizService, QuizService>();
             builder.Services.AddScoped<IQuestionService, QuestionService>();
             builder.Services.AddScoped<ITopicService, TopicService>();
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPostService, PostService>();
+
 
             //configure Identity Users
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
