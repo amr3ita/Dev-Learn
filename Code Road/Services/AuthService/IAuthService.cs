@@ -8,5 +8,7 @@ namespace Code_Road.Services.PostService.AuthService
         Task<AuthDto> LoginAsync(LoginDto model);
         Task<StateDto> AddUserToRoleAsync(AddUserToRoleDto model);
         Task<string> GetUserName(string Id);
+        Task<StateDto> UpdatePassword(UpdatePasswordDto model);
+        Task<StateDto> DeleteUser(DeleteUserDto model);
     }
 }
