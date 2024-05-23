@@ -35,10 +35,10 @@ namespace Code_Road
             builder.Services.AddScoped<IQuizService, QuizService>();
             builder.Services.AddScoped<IQuestionService, QuestionService>();
             builder.Services.AddScoped<ITopicService, TopicService>();
-
+            builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPostService, PostService>();
 
-            builder.Services.AddScoped<IUserService, UserService>();
+
 
 
             //configure Identity Users
