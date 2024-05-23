@@ -28,17 +28,31 @@ namespace Code_Road.Controllers
         public async Task<IActionResult> GetAllFollowing(string id)
         {
 
-            FollowingDto followeres = await _userService.GetAllFollowing(id);
-            if (!followeres.State.Flag)
-                return BadRequest(followeres);
+            FollowingDto? followeres = await _userService.GetAllFollowing(id);
+            if (followeres is null)
+                return BadRequest("SomeThing went wrong");
+            if (followeres.State is not null)
+            {
+                if (!followeres.State.Flag)
+                    return BadRequest(followeres);
+            }
             return Ok(followeres);
         }
-
         [HttpPost("Follow")]
-        public async Task<IActionResult> Follower(string followerId, string followingId)
+        public async Task<IActionResult> Follow(string followerId, string followingId)
         {
 
             StateDto follower = await _userService.Follow(followerId, followingId);
+            if (!follower.Flag)
+                return BadRequest(follower);
+            return Ok(follower);
+        }
+        [HttpPost("UnFollow")]
+        public async Task<IActionResult> UnFollow(string followerId, string followingId)
+        {
+
+            StateDto follower = await _userService.UnFollow(followerId, followingId);
+
             if (!follower.Flag)
                 return BadRequest(follower);
             return Ok(follower);

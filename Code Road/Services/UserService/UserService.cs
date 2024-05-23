@@ -90,23 +90,47 @@ namespace Code_Road.Services.UserService
         {
             ApplicationUser? follower = await _user.FindByIdAsync(followerId);
             ApplicationUser? following = await _user.FindByIdAsync(followingId);
-
+            StateDto state = new StateDto { Flag = false, Message = "Invalid ID" };
             if (follower is null || following is null)
-                return new StateDto { Flag = false, Message = "Invalid ID" };
+                return state;
+            state.Flag = true;
+            state.Message = "Following";
             Follow follow = new Follow() { FollowingId = followingId, FollowerId = followerId };
             if (!_context.Follow.Any(f => f.FollowingId == followingId && f.FollowerId == followerId))
             {
                 _context.Follow.Add(follow);
 
                 await _context.SaveChangesAsync();
-                return new StateDto { Flag = true, Message = "Following" };
+                return state;
             }
             else
+            {
+                state.Flag = true;
+                state.Message = "You Already Follow this Account";
+                return state;
+            }
+
+
+        }
+        public async Task<StateDto> UnFollow(string followerId, string followingId)
+        {
+            ApplicationUser? follower = await _user.FindByIdAsync(followerId);
+            ApplicationUser? following = await _user.FindByIdAsync(followingId);
+
+            if (follower is null || following is null)
+                return new StateDto { Flag = false, Message = "Invalid ID" };
+            Follow follow = new Follow() { FollowingId = followingId, FollowerId = followerId };
+            if (_context.Follow.Any(f => f.FollowingId == followingId && f.FollowerId == followerId))
             {
                 _context.Follow.Remove(follow);
 
                 await _context.SaveChangesAsync();
                 return new StateDto { Flag = true, Message = "Following removed" };
+            }
+            else
+            {
+
+                return new StateDto { Flag = true, Message = "You Already un Follow this Account" };
             }
 
 
