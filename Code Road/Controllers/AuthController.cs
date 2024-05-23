@@ -15,6 +15,15 @@ namespace Code_Road.Controllers
             _authService = authService;
         }
 
+        //[Authorize(Roles = "Admin")]
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _authService.GetAllUsers();
+
+            return Ok(users);
+        }
+
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody] SignUpDto model)
         {
