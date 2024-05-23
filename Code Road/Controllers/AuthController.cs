@@ -15,7 +15,7 @@ namespace Code_Road.Controllers
             _authService = authService;
         }
 
-        //[Authorize(Roles = "Admin")]
+        // [Authorize(Roles = "Admin")]
         [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {

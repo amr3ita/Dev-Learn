@@ -38,9 +38,6 @@ namespace Code_Road
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPostService, PostService>();
 
-
-
-
             //configure Identity Users
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
 
@@ -89,7 +86,6 @@ namespace Code_Road
 
 
             app.MapControllers();
-
             app.Run();
         }
     }
