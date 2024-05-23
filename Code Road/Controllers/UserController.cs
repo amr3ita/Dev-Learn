@@ -15,6 +15,8 @@ namespace Code_Road.Controllers
         {
             _userService = userService;
         }
+
+        // get all followers for any user
         [HttpGet("GetAllFollowers")]
         public async Task<IActionResult> GetAllFollowers(string id)
         {
@@ -24,6 +26,8 @@ namespace Code_Road.Controllers
                 return BadRequest(followeres);
             return Ok(followeres);
         }
+
+        // get the following list for the user
         [HttpGet("GetAllFollowing")]
         public async Task<IActionResult> GetAllFollowing(string id)
         {
@@ -38,6 +42,8 @@ namespace Code_Road.Controllers
             }
             return Ok(followeres);
         }
+
+        // make follow to another user
         [HttpPost("Follow")]
         public async Task<IActionResult> Follow(string followerId, string followingId)
         {
@@ -47,6 +53,8 @@ namespace Code_Road.Controllers
                 return BadRequest(follower);
             return Ok(follower);
         }
+
+        // unfollow any user
         [HttpPost("UnFollow")]
         public async Task<IActionResult> UnFollow(string followerId, string followingId)
         {

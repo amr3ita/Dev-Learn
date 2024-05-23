@@ -86,7 +86,6 @@ namespace Code_Road
 
 
             app.MapControllers();
-
             app.Run();
         }
     }
