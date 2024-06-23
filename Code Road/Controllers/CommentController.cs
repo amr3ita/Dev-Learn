@@ -1,7 +1,9 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Comment;
 using Code_Road.Services.CommentService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Code_Road.Controllers
 {
@@ -29,36 +31,47 @@ namespace Code_Road.Controllers
             return Ok(comments);
         }
         [HttpPatch("edit")]
-        public async Task<IActionResult> EditComment(int commentId, string userId, EditDto model)
+        [Authorize]
+        public async Task<IActionResult> EditComment(int commentId, EditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            string userId = await getLogginUserId();
             CommentDto comment = await _commentService.EditComment(commentId, userId, model);
             if (!comment.State.Flag)
                 return BadRequest(comment.State.Message);
             return Ok(comment);
         }
         [HttpDelete("UserDeleteHisComment")]
-
-        public async Task<IActionResult> DeleteComment(int commentId, int postId, string userId)
+        [Authorize]
+        public async Task<IActionResult> DeleteComment(int commentId, int postId)
         {
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            string userId = await getLogginUserId();
             StateDto state = await _commentService.DeleteComment(commentId, postId, userId);
             if (!state.Flag)
                 return BadRequest(state.Message);
             return Ok(state.Message);
         }
         [HttpPost("UserAddThisCooment")]
-        public async Task<IActionResult> AddComment(int postId, string userId, EditDto model)
+        [Authorize]
+        public async Task<IActionResult> AddComment(int postId, EditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            string userId = await getLogginUserId();
             StateDto state = await _commentService.AddComment(postId, userId, model);
             if (!state.Flag)
                 return BadRequest(state.Message);
             return Ok(state);
+        }
+        private async Task<string> getLogginUserId()
+        {
+
+            string id = HttpContext.User.FindFirstValue("uid") ?? "NA";
+            return id;
         }
     }
 }
