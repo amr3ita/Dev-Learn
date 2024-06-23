@@ -1,6 +1,7 @@
 using Code_Road.Helpers;
 using Code_Road.Models;
 using Code_Road.Services.CommentService;
+using Code_Road.Services.EmailService;
 using Code_Road.Services.LessonService;
 using Code_Road.Services.PostService;
 using Code_Road.Services.PostService.AuthService;
@@ -10,6 +11,7 @@ using Code_Road.Services.TopicService;
 using Code_Road.Services.UserService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -30,6 +32,8 @@ namespace Code_Road
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddScoped<IEmailService, EmailService>();
+            builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
             builder.Services.AddScoped<ICommentService, CommentService>();
             builder.Services.AddScoped<ILessonService, LessonService>();
             builder.Services.AddScoped<IQuizService, QuizService>();
@@ -39,13 +43,27 @@ namespace Code_Road
             builder.Services.AddScoped<IPostService, PostService>();
 
             //configure Identity Users
-            builder.Services.AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AppDbContext>();
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
+            {
+                options.SignIn.RequireConfirmedEmail = true;
+            })
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddDefaultTokenProviders();
+
+
 
             //configure database connection
             builder.Services.AddDbContext<AppDbContext>(options =>
             {
                 options.UseSqlServer(builder.Configuration.GetConnectionString("cs"));
             });
+
+            //configure email settings
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
+
+            // Register UrlHelperFactoryService and IHttpContextAccessor
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddScoped<UrlHelperFactoryService>();
 
             //configure JWT 
             builder.Services.Configure<JWT>(builder.Configuration.GetSection("JWT"));

@@ -9,7 +9,6 @@ namespace Code_Road.Services.UserService
         Task<FollowingDto> GetAllFollowing(string id);
         Task<StateDto> Follow(string followerId, string followingId);
         Task<StateDto> UnFollow(string followerId, string followingId);
-        //this is comment
         Task<FinishedLessonsDto> GetFinishedLessonsForSpecificUser(string userId);
         Task<StateDto> FinishLesson(string userId, int lessonId, int degree);
     }

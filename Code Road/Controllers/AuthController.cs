@@ -27,14 +27,40 @@ namespace Code_Road.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody] SignUpDto model)
         {
+            /*if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            AuthDto user = await _authService.RegisterAsync(model, Request.Scheme);
+
+            if (!user.Status.Flag)
+                return BadRequest(user.Status.Message);
+
+            return Ok(new { Message = "Registration successful. Please check your email to verify your account.", user });*/
+
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            AuthDto user = await _authService.RegisterAsync(model);
+            AuthDto user = await _authService.RegisterAsync(model, Request.Scheme);
+
             if (!user.Status.Flag)
                 return BadRequest(user.Status.Message);
 
             return Ok(user);
+        }
+
+        [HttpGet("verifyemail")]
+        public async Task<IActionResult> VerifyEmail(string userId, string token)
+        {
+            var result = await _authService.VerifyEmail(userId, token);
+            if (result.Succeeded)
+            {
+                return Ok("Email verified successfully");
+            }
+            else
+            {
+                // Handle email verification failure
+                return BadRequest("Email verification failed");
+            }
         }
 
         [HttpPost("Login")]

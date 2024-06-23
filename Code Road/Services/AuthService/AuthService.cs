@@ -2,6 +2,7 @@
 using Code_Road.Dto.Account.Enum;
 using Code_Road.Helpers;
 using Code_Road.Models;
+using Code_Road.Services.EmailService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -17,11 +18,16 @@ namespace Code_Road.Services.PostService.AuthService
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWT _Jwt;
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt)
+        private readonly IEmailService _emailService;
+        private readonly UrlHelperFactoryService _urlHelperFactoryService;
+
+        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _Jwt = Jwt.Value;
+            _emailService = emailService;
+            _urlHelperFactoryService = urlHelperFactoryService;
         }
 
         // Get All Users
@@ -31,7 +37,7 @@ namespace Code_Road.Services.PostService.AuthService
         }
 
         // Register
-        public async Task<AuthDto> RegisterAsync(SignUpDto model)
+        public async Task<AuthDto> RegisterAsync(SignUpDto model, string requestScheme)
         {
             StateDto state = new StateDto();
             // If email is exist
@@ -74,8 +80,15 @@ namespace Code_Road.Services.PostService.AuthService
             // Create Token
             var jwtSecurityToken = await CreateJwtToken(user);
 
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = _urlHelperFactoryService.Action("VerifyEmail", "Auth", new { userId = user.Id, token }, requestScheme);
+            var message = $"Please verify your email by clicking <a href='{confirmationLink}'>here</a>.";
+            await _emailService.SendEmailAsync(model.Email, "Verify your email", message);
+
             state.Flag = true;
-            state.Message = "Signup Succeeded";
+            state.Message = "Registration successful. Please check your email to verify your account.";
+
+
             return new AuthDto
             {
                 Status = state,
@@ -88,6 +101,15 @@ namespace Code_Road.Services.PostService.AuthService
             };
 
 
+        }
+        // Verify Email
+        public async Task<IdentityResult> VerifyEmail(string userId, string token)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+                return IdentityResult.Failed(new IdentityError { Description = "Invalid User ID" });
+
+            return await _userManager.ConfirmEmailAsync(user, token);
         }
 
         // Generate Token
