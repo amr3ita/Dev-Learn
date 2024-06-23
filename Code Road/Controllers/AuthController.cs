@@ -27,16 +27,6 @@ namespace Code_Road.Controllers
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody] SignUpDto model)
         {
-            /*if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            AuthDto user = await _authService.RegisterAsync(model, Request.Scheme);
-
-            if (!user.Status.Flag)
-                return BadRequest(user.Status.Message);
-
-            return Ok(new { Message = "Registration successful. Please check your email to verify your account.", user });*/
-
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
