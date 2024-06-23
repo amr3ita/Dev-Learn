@@ -136,6 +136,95 @@ namespace Code_Road.Services.UserService
 
         }
 
+        public async Task<FinishedLessonsDto> GetFinishedLessonsForSpecificUser(string userId)
+        {
 
+            StateDto state = await CheckUserId(userId);
+            FinishedLessonsDto finishedLessons = new FinishedLessonsDto { State = state, Count = 0 };
+            if (!state.Flag)
+                return finishedLessons;
+            state.Flag = false;
+            state.Message = "there is now followings";
+            finishedLessons.Lessons = new List<FinishedLessonDetailsDto>();
+            var lessons = _context.FinishedLessons.Where(u => u.UserId == userId).ToList();
+            if (lessons is null)
+            {
+                finishedLessons.State = state;
+                return finishedLessons;
+            }
+            state.Flag = true;
+            state.Message = "done";
+            finishedLessons.Count = lessons.Count;
+            foreach (var lesson in lessons)
+            {
+                string finishedLessonName = await CheckLessonId(lesson.LessonId);
+                finishedLessons.Lessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, Degree = lesson.Degree });
+            }
+            return finishedLessons;
+        }
+        public async Task<StateDto> FinishLesson(string userId, int lessonId, int degree)
+        {
+            StateDto state = await CheckUserId(userId);
+            if (!state.Flag)
+                return state;
+            state.Flag = false;
+            state.Message = "Invalid Lesson";
+            string lesson = await CheckLessonId(lessonId);
+            if (lesson is null) return state;
+            state.Flag = false;
+            state.Message = "Invalid Quiz";
+            Quiz? quiz = await _context.Quizzes.Where(l => l.LessonId == lessonId).FirstOrDefaultAsync();
+            if (quiz is null) return state;
+            state = await UpdateDegree(userId, lessonId, degree, quiz);
+            if (state.Flag) return state;
+            state.Message = "oops.You Failed";
+            if (degree < (quiz.TotalDegree * .6) || degree < 0 || degree >= quiz.TotalDegree)
+                return state;
+            state.Flag = true;
+            state.Message = "Congratulation,You Successed";
+            FinishedLessons finishedLesson = new FinishedLessons { UserId = userId, LessonId = lessonId, Degree = degree };
+            _context.FinishedLessons.Add(finishedLesson);
+            await _context.SaveChangesAsync();
+            return state;
+
+        }
+        private async Task<StateDto> UpdateDegree(string userId, int lessonId, int degree, Quiz quiz)
+        {
+            StateDto state = new StateDto { Flag = false, Message = "new lesson" };
+            FinishedLessons? finishedLesson = await _context.FinishedLessons.Where(fl => fl.UserId == userId && fl.LessonId == lessonId).SingleOrDefaultAsync();
+            if (finishedLesson is null) return state;
+            state.Flag = true;
+            state.Message = "oops.You Failed";
+            if (degree < (quiz.TotalDegree * .6) || degree < 0 || degree >= quiz.TotalDegree)
+            {
+                _context.FinishedLessons.Remove(finishedLesson);
+                await _context.SaveChangesAsync();
+                return state;
+            }
+            state.Flag = true;
+            state.Message = "Congratulation,You Successed";
+            finishedLesson.Degree = degree;
+            await _context.SaveChangesAsync();
+            return state;
+
+
+
+        }
+        private async Task<StateDto> CheckUserId(string userId)
+        {
+            ApplicationUser? user = await _user.FindByIdAsync(userId);
+            StateDto state = new StateDto() { Flag = false, Message = "invalid Id" };
+            if (user is null) return state;
+            state.Flag = true;
+            state.Message = "user found";
+            return state;
+        }
+        private async Task<string> CheckLessonId(int lessonId)
+        {
+            Lesson? finishedLesson = await _context.Lessons.Where(l => l.Id == lessonId).FirstOrDefaultAsync();
+            if (finishedLesson is null) return null;
+
+            return finishedLesson.Name;
+        }
     }
 }

@@ -13,6 +13,7 @@ namespace Code_Road.Models
         public DbSet<Question> Questions { get; set; }
         public DbSet<Image> Image { get; set; }
         public DbSet<Follow> Follow { get; set; }
+        public DbSet<FinishedLessons> FinishedLessons { get; set; }
 
         public AppDbContext()
         {
@@ -36,6 +37,10 @@ namespace Code_Road.Models
             builder.Entity<Follow>(enitity =>
             {
                 enitity.HasKey(k => new { k.FollowerId, k.FollowingId });
+            });
+            builder.Entity<FinishedLessons>(enitity =>
+            {
+                enitity.HasKey(k => new { k.UserId, k.LessonId });
             });
         }
     }
