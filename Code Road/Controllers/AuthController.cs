@@ -39,6 +39,7 @@ namespace Code_Road.Controllers
         }
 
         [HttpGet("verifyemail")]
+        [NonAction]
         public async Task<IActionResult> VerifyEmail(string userId, string token)
         {
             var result = await _authService.VerifyEmail(userId, token);
