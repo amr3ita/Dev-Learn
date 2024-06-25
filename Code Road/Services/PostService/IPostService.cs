@@ -10,7 +10,7 @@ namespace Code_Road.Services.PostService
         public Task<PostDto> GetByIdAsync(int post_id);
         public Task<PostDto> AddPostAsync(AddPostDto postModel);
         public Task<PostDto> UpdatePostAsync(int post_id, UpdatePostDto postModel);
-        public Task<StateDto> DeletePostAsync(int post_id);
+        public Task<StateDto> DeletePostAsync(int post_id, string user_id);
 
         Task<StateDto> IncreaseUpvoteAsync(int postId);
         Task<StateDto> IncreaseDownvoteAsync(int postId);

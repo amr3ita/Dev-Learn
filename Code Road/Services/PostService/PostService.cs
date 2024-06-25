@@ -165,7 +165,7 @@ namespace Code_Road.Services.PostService
             var old_post = await _context.Posts
               .FirstOrDefaultAsync(p => p.Id == post_id);
             //check user access 
-            Console.WriteLine($"beFore operation {old_post.Content}");
+         //   Console.WriteLine($"beFore operation {old_post.Content}");
             if (old_post.UserId != postModel.UserId)
             {
                 state.Flag = false;
@@ -189,7 +189,6 @@ namespace Code_Road.Services.PostService
             }
 
             old_post.Content = postModel.Content;
-            //    await _context.Posts.ExecuteUpdateAsync(old_post);
             if (postModel.Images != null)
             {
                 List<Image> images = await _context.Image.Where(p => p.PostId == post_id).ToListAsync();
@@ -201,19 +200,26 @@ namespace Code_Road.Services.PostService
                 _context.Image.RemoveRange(images);
                 old_post.Images = await GetImagePath(postModel.Images, user.UserName, old_post.Id, old_post.UserId);
             }
-
-            //old_post.Content =postModel.Content;
+             _context.Posts.Update(old_post);
             await _context.SaveChangesAsync();
-            Console.WriteLine($"After operation {old_post.Content}");
+         //   Console.WriteLine($"After operation {old_post.Content}");
 
             return await GetByIdAsync(old_post.Id);
         }
 
-        public async Task<StateDto> DeletePostAsync(int post_id)
+        public async Task<StateDto> DeletePostAsync(int post_id, string user_id)
         {
+            StateDto state= new StateDto();
             var del_post = await _context.Posts
                 .FirstOrDefaultAsync(p => p.Id == post_id);
+            if (del_post.UserId != user_id)
+            {
+                state.Flag = false;
+                state.Message = "Invalid user 'Access Denied!' ";
+                return state;
+            }
             List<Image> images = await _context.Image.Where(p => p.PostId == post_id).ToListAsync();
+            List<Comment> comments = await _context.Comments.Where(c => c.PostId == post_id).ToListAsync();
             if (del_post != null)
             {
                 if (images.Count > 0)
@@ -227,6 +233,10 @@ namespace Code_Road.Services.PostService
                     }
                     _context.Image.RemoveRange(images);
 
+                }
+                if (comments.Count > 0)
+                {
+                    _context.Comments.RemoveRange(comments);
                 }
                 _context.Posts.Remove(del_post);
 
@@ -338,6 +348,7 @@ namespace Code_Road.Services.PostService
             }
 
             post.Up++;
+            _context.Posts.Update(post);
             await _context.SaveChangesAsync();
 
             return new StateDto { Flag = true, Message = "Upvote increased successfully." };
@@ -352,6 +363,7 @@ namespace Code_Road.Services.PostService
             }
 
             post.Down++;
+            _context.Posts.Update(post);
             await _context.SaveChangesAsync();
 
             return new StateDto { Flag = true, Message = "Downvote increased successfully." };
@@ -368,6 +380,7 @@ namespace Code_Road.Services.PostService
             if (post.Up > 0)
             {
                 post.Up--;
+                _context.Posts.Update(post);
                 await _context.SaveChangesAsync();
                 return new StateDto { Flag = true, Message = "Upvote decreased successfully." };
             }
@@ -386,6 +399,7 @@ namespace Code_Road.Services.PostService
             if (post.Down > 0)
             {
                 post.Down--;
+                _context.Posts.Update(post);
                 await _context.SaveChangesAsync();
                 return new StateDto { Flag = true, Message = "Downvote decreased successfully." };
             }

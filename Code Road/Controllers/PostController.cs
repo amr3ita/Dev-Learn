@@ -67,9 +67,9 @@ namespace Code_Road.Controllers
             }
         }
         [HttpDelete]
-        public async Task<IActionResult> RemovePost(int id)
+        public async Task<IActionResult> RemovePost(int id, string user_id)
         {
-            var state = await _postService.DeletePostAsync(id);
+            var state = await _postService.DeletePostAsync(id, user_id);
             if (!state.Flag)
             {
                 return BadRequest(state.Message);
