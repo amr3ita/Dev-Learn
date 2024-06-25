@@ -103,7 +103,7 @@ namespace Code_Road.Controllers
             {
                 StateDto status = await _authService.DeleteUser(model);
                 if (status.Flag)
-                    return Ok(status.Message);
+                    return Ok(new { Message = status.Message });
                 return BadRequest(status.Message);
             }
             return BadRequest(ModelState);

@@ -27,6 +27,7 @@ namespace Code_Road
             // Add services to the container.
 
             builder.Services.AddControllers();
+            builder.Services.AddLogging();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -89,10 +90,13 @@ namespace Code_Road
 
             builder.Services.AddCors(options =>
             {
-                options.AddPolicy("AllowSpecificOrigin",
-                    builder => builder.WithOrigins("https://coderoad.bsite.net")
-                                      .AllowAnyHeader()
-                                      .AllowAnyMethod());
+                options.AddPolicy("AllowAll",
+                    builder =>
+                    {
+                        builder.AllowAnyOrigin()
+                               .AllowAnyHeader()
+                               .AllowAnyMethod();
+                    });
             });
 
             var app = builder.Build();
@@ -104,12 +108,15 @@ namespace Code_Road
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowAll");
+
             app.UseStaticFiles();
             app.UseHttpsRedirection();
 
+            app.UseRouting();
+
             app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
             app.Run();
