@@ -3,6 +3,7 @@ using Code_Road.Dto.Account.Enum;
 using Code_Road.Helpers;
 using Code_Road.Models;
 using Code_Road.Services.EmailService;
+using Code_Road.Services.UserService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,25 +16,33 @@ namespace Code_Road.Services.PostService.AuthService
 {
     public class AuthService : IAuthService
     {
+        private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly JWT _Jwt;
         private readonly IEmailService _emailService;
         private readonly UrlHelperFactoryService _urlHelperFactoryService;
-        private readonly AppDbContext _context;
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, AppDbContext context)
+        private readonly IUserService _userService;
+
+
+        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
+
         {
+            _context = context;
             _userManager = userManager;
             _roleManager = roleManager;
             _Jwt = Jwt.Value;
             _emailService = emailService;
             _urlHelperFactoryService = urlHelperFactoryService;
+
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
-            _context = context;
+
+            _userService = userService;
+
         }
 
         // Get All Users
@@ -253,20 +262,47 @@ namespace Code_Road.Services.PostService.AuthService
                 bool isAdmin = await _userManager.IsInRoleAsync(admin, "Admin");
                 if (isAdmin)
                 {
-                    var result = await _userManager.RemoveFromRoleAsync(user, "User");
-                    if (result.Succeeded)
+                    try
                     {
-                        result = await _userManager.DeleteAsync(user);
+                        // delete all comments for this user
+                        _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == user.Id).ToListAsync());
+                        // delete all posts for this user
+                        _context.Posts.RemoveRange(await _context.Posts.Where(p => p.UserId == user.Id).ToListAsync());
+                        // delete the finished lessons for this user
+                        var finishedLessons = await _userService.GetFinishedLessonsForSpecificUser(user.Id);
+                        _context.FinishedLessons.RemoveRange(await _context.FinishedLessons.Where(fl => fl.UserId == user.Id).ToListAsync());
+                        // unfollow all users this user follow
+                        var followers = await _userService.GetAllFollowers(user.Id);
+                        foreach (var follower in followers.FollowersList)
+                        {
+                            await _userService.UnFollow(user.Id, follower.Id);
+                        }
+                        // remove this user from all users list followers
+                        var followings = await _userService.GetAllFollowing(user.Id);
+                        foreach (var follow in followings.FollowingList)
+                        {
+                            await _userService.UnFollow(follow.Id, user.Id);
+                        }
+
+                        var result = await _userManager.RemoveFromRoleAsync(user, "User");
                         if (result.Succeeded)
                         {
-                            status.Flag = true;
-                            status.Message = "User Deleted Successfully";
-                            return status;
+                            result = await _userManager.DeleteAsync(user);
+                            if (result.Succeeded)
+                            {
+                                status.Flag = true;
+                                status.Message = "User Deleted Successfully";
+                                return status;
+                            }
                         }
                     }
-                    status.Flag = false;
-                    status.Message = result.Errors.ToString();
-                    return status;
+                    catch (Exception ex)
+                    {
+                        status.Flag = false;
+                        status.Message = $"Error: {ex.Message}";
+                        return status;
+
+                    }
                 }
                 status.Flag = false;
                 status.Message = "You Don't have Permission To Delete User";
