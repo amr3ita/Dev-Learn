@@ -11,6 +11,7 @@ namespace Code_Road.Dto.Account
         [MaxLength(100)]
         public string LastName { get; set; }
         [StringLength(50)]
+        [Required]
         public string Username { get; set; }
         [Required]
         [EmailAddress]

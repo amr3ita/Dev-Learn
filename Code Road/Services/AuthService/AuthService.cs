@@ -22,10 +22,12 @@ namespace Code_Road.Services.PostService.AuthService
         private readonly JWT _Jwt;
         private readonly IEmailService _emailService;
         private readonly UrlHelperFactoryService _urlHelperFactoryService;
+        private readonly IWebHostEnvironment _environment;
         private readonly IUserService _userService;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IHttpContextAccessor httpContextAccessor)
+        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
+
         {
             _context = context;
             _userManager = userManager;
@@ -33,6 +35,7 @@ namespace Code_Road.Services.PostService.AuthService
             _Jwt = Jwt.Value;
             _emailService = emailService;
             _urlHelperFactoryService = urlHelperFactoryService;
+            _environment = environment;
             _userService = userService;
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
@@ -94,6 +97,7 @@ namespace Code_Road.Services.PostService.AuthService
 
             state.Flag = true;
             state.Message = "Registration successful. Please check your email to verify your account.";
+            await SetDefaultAvatarImage(user.Id);
 
 
             return new AuthDto
@@ -305,7 +309,6 @@ namespace Code_Road.Services.PostService.AuthService
                 return status;
             }
         }
-
         private async Task DeleteUserRelatedDataAsync(string userId)
         {
             // Delete comments
@@ -348,6 +351,22 @@ namespace Code_Road.Services.PostService.AuthService
             if (user is null)
                 return null;
             return user;
+        }
+        private async Task<StateDto> SetDefaultAvatarImage(string userId)
+        {
+            try
+            {
+                var httpContext = _httpContextAccessor.HttpContext;
+                string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+                Image image = new Image() { ImageUrl = hosturl + "/Upload/User/Avatar/Avatar.jpg", UserId = userId };
+                await _context.AddAsync(image);
+                _context.SaveChanges();
+                return new StateDto() { Flag = true, Message = "Added Successfully" };
+            }
+            catch (Exception ex)
+            {
+                return new StateDto() { Flag = false, Message = ex.Message };
+            }
         }
 
     }

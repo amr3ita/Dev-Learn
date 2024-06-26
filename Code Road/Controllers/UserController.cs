@@ -91,6 +91,37 @@ namespace Code_Road.Controllers
             StateDto state = await _userService.FinishLesson(userId, lessonId, degree);
             return Ok(state);
         }
+        [HttpGet("GetUserImage")]
+        public async Task<IActionResult> GetUserImage(string userId)
+        {
+            string image = await _userService.GetUserImage(userId);
+            if (ModelState.IsValid)
+                return Ok(image);
+            return BadRequest(image);
+
+        }
+        [Authorize]
+        [HttpPost("UpdateUserImage")]
+        public async Task<IActionResult> UpdateUserImage([FromForm] IFormFile image)
+        {
+            string userId = await getLogginUserId();
+            StateDto state = await _userService.UpdateUserImage(userId, image);
+            if (state.Flag)
+                return Ok(state);
+            return BadRequest(state);
+
+        }
+        [Authorize]
+        [HttpDelete("DeleteUserImage")]
+        public async Task<IActionResult> DeleteUserImage()
+        {
+            string userId = await getLogginUserId();
+            StateDto state = await _userService.DeleteUserImage(userId);
+            if (state.Flag)
+                return Ok(state);
+            return BadRequest(state);
+
+        }
         private async Task<string> getLogginUserId()
         {
             string id = HttpContext.User.FindFirstValue("uid") ?? "NA";
