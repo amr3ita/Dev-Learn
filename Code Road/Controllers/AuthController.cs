@@ -98,7 +98,7 @@ namespace Code_Road.Controllers
         }
 
         [HttpDelete("DeleteUser")]
-        //[Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserAsync(string userEmail)
         {
 
