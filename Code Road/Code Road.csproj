@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\Upload\Lessons\" />
-    <Folder Include="wwwroot\Upload\Lessons\" />
   </ItemGroup>
 
 </Project>

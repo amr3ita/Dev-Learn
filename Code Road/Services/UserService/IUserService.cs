@@ -11,5 +11,9 @@ namespace Code_Road.Services.UserService
         Task<StateDto> UnFollow(string followerId, string followingId);
         Task<FinishedLessonsDto> GetFinishedLessonsForSpecificUser(string userId);
         Task<StateDto> FinishLesson(string userId, int lessonId, int degree);
+        Task<StateDto> UpdateUserImage(string userId, IFormFile image);
+        Task<StateDto> DeleteUserImage(string userId);
+        public Task<string> GetUserImage(string userId);
+
     }
 }

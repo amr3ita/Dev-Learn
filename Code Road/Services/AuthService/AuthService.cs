@@ -20,14 +20,20 @@ namespace Code_Road.Services.PostService.AuthService
         private readonly JWT _Jwt;
         private readonly IEmailService _emailService;
         private readonly UrlHelperFactoryService _urlHelperFactoryService;
+        private readonly AppDbContext _context;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService)
+        public AuthService(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, AppDbContext context)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _Jwt = Jwt.Value;
             _emailService = emailService;
             _urlHelperFactoryService = urlHelperFactoryService;
+            _environment = environment;
+            _httpContextAccessor = httpContextAccessor;
+            _context = context;
         }
 
         // Get All Users
@@ -87,6 +93,7 @@ namespace Code_Road.Services.PostService.AuthService
 
             state.Flag = true;
             state.Message = "Registration successful. Please check your email to verify your account.";
+            await SetDefaultAvatarImage(user.Id);
 
 
             return new AuthDto
@@ -269,5 +276,22 @@ namespace Code_Road.Services.PostService.AuthService
             status.Message = "Admin or User Email Incorrect";
             return status;
         }
+        private async Task<StateDto> SetDefaultAvatarImage(string userId)
+        {
+            try
+            {
+                var httpContext = _httpContextAccessor.HttpContext;
+                string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+                Image image = new Image() { ImageUrl = hosturl + "/Upload/User/Avatar/Avatar.jpg", UserId = userId };
+                await _context.AddAsync(image);
+                _context.SaveChanges();
+                return new StateDto() { Flag = true, Message = "Added Successfully" };
+            }
+            catch (Exception ex)
+            {
+                return new StateDto() { Flag = false, Message = ex.Message };
+            }
+        }
+
     }
 }

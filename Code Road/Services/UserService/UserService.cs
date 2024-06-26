@@ -10,11 +10,15 @@ namespace Code_Road.Services.UserService
     {
         private readonly AppDbContext _context;
         private readonly UserManager<ApplicationUser> _user;
+        private readonly IWebHostEnvironment _environment;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserService(AppDbContext context, UserManager<ApplicationUser> user)
+        public UserService(AppDbContext context, UserManager<ApplicationUser> user, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _user = user;
+            _environment = environment;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<FollowersDto> GetAllFollowers(string id)
         {
@@ -187,6 +191,109 @@ namespace Code_Road.Services.UserService
             await _context.SaveChangesAsync();
             return state;
 
+        }
+        public async Task<string> GetUserImage(string userId)
+        {
+            StateDto state = await CheckUserId(userId);
+            if (!state.Flag) return "invalid User";
+            Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null);
+            if (img is not null)
+                return img.ImageUrl;
+            var httpContext = _httpContextAccessor.HttpContext;
+            string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+            return hosturl + "/Upload/User/Avatar/Avatar.jpg";
+        }
+        public async Task<StateDto> UpdateUserImage(string userId, IFormFile image)
+        {
+            StateDto state = await GetImagePath(image, userId);
+            if (state.Flag)
+            {
+
+                return state;
+            }
+            return new StateDto { Flag = false, Message = "failed" };
+
+        }
+        public async Task<StateDto> DeleteUserImage(string userId)
+        {
+            StateDto state = await DeleteImage(userId);
+            if (state.Flag)
+            {
+
+                return state;
+            }
+            return new StateDto { Flag = false, Message = "failed" };
+
+        }
+        private async Task<StateDto> GetImagePath(IFormFile image, string userId)
+        {
+            StateDto state = await CheckUserId(userId);
+            if (!state.Flag) return new StateDto { Flag = false, Message = "Smoething went wrong" };
+            ApplicationUser? user = await _user.FindByIdAsync(userId);
+            var httpContext = _httpContextAccessor.HttpContext;
+            string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+
+            string filepath = await getFilePath(user.UserName);
+            if (!Directory.Exists(filepath))
+            {
+                Directory.CreateDirectory(filepath);
+            }
+
+            string imgpath = filepath + "\\" + user.UserName + ".png";
+            if (File.Exists(imgpath))
+            {
+                File.Delete(imgpath);
+            }
+            using (FileStream stream = File.Create(imgpath))
+            {
+                await image.CopyToAsync(stream);
+            }
+            string imgUrl = hosturl + "/Upload/User/" + $"{user.UserName}/" + user.UserName + ".png";
+            Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null);
+            if (img is not null)
+            {
+                _context.Image.Remove(img);
+                _context.SaveChanges();
+            }
+            img = new Image { UserId = userId, ImageUrl = imgUrl };
+
+            await _context.Image.AddAsync(img);
+            await _context.SaveChangesAsync();
+
+
+            return new StateDto { Flag = true, Message = "Image Updated Successfully" };
+        }
+        private async Task<StateDto> DeleteImage(string userId)
+        {
+            try
+            {
+
+                StateDto state = await CheckUserId(userId);
+                if (!state.Flag) return new StateDto { Flag = false, Message = "Smoething went wrong" };
+                ApplicationUser? user = await _user.FindByIdAsync(userId);
+                var httpContext = _httpContextAccessor.HttpContext;
+                string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
+                string filepath = await getFilePath(user.UserName);
+                string imgpath = filepath + "\\" + user.UserName + ".png";
+                if (File.Exists(imgpath))
+                {
+                    File.Delete(imgpath);
+                }
+                Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null);
+                img.ImageUrl = hosturl + "/Upload/User/Avatar/Avatar.jpg";
+                _context.Image.Update(img);
+                await _context.SaveChangesAsync();
+                state.Message = "deleted";
+                return state;
+            }
+            catch (Exception ex)
+            {
+                return new StateDto { Flag = false, Message = ex.Message };
+            }
+        }
+        private async Task<string> getFilePath(string userName)
+        {
+            return _environment.WebRootPath + "\\Upload\\User\\" + userName;
         }
         private async Task<StateDto> UpdateDegree(string userId, int lessonId, int degree, Quiz quiz)
         {
