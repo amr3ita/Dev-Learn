@@ -85,7 +85,6 @@ namespace Code_Road.Services.UserService
             return fd;
         }
 
-
         public async Task<StateDto> Follow(string followerId, string followingId)
         {
             ApplicationUser? follower = await _user.FindByIdAsync(followerId);

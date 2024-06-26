@@ -93,7 +93,6 @@ namespace Code_Road.Controllers
         }
         private async Task<string> getLogginUserId()
         {
-
             string id = HttpContext.User.FindFirstValue("uid") ?? "NA";
             return id;
         }

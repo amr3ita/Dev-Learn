@@ -23,8 +23,9 @@ namespace Code_Road.Services.PostService.AuthService
         private readonly IEmailService _emailService;
         private readonly UrlHelperFactoryService _urlHelperFactoryService;
         private readonly IUserService _userService;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService)
+        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
             _userManager = userManager;
@@ -33,6 +34,7 @@ namespace Code_Road.Services.PostService.AuthService
             _emailService = emailService;
             _urlHelperFactoryService = urlHelperFactoryService;
             _userService = userService;
+            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
         }
 
         // Get All Users
@@ -216,90 +218,137 @@ namespace Code_Road.Services.PostService.AuthService
             var user = await _userManager.FindByEmailAsync(model.Gmail);
             if (user is not null)
             {
-                bool isTrue = await _userManager.CheckPasswordAsync(user, model.OldPassword);
-                if (isTrue)
+                try
                 {
-                    var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
-                    if (result.Succeeded)
+                    bool isTrue = await _userManager.CheckPasswordAsync(user, model.OldPassword);
+                    if (isTrue)
                     {
-                        status.Flag = true;
-                        status.Message = "Password Updated Successfully";
-                        return status;
-                    }
-                    else
-                    {
-                        status.Flag = false;
-                        status.Message = result.Errors.ToString();
-                        return status;
+                        var result = await _userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                        if (result.Succeeded)
+                        {
+                            status.Flag = true;
+                            status.Message = "Password Updated Successfully";
+                            return status;
+                        }
                     }
                 }
+                catch (Exception ex)
+                {
+
+                    status.Flag = false;
+                    status.Message = $"Error: {ex.Message}";
+                    return status;
+                }
+
             }
             status.Flag = false;
             status.Message = "Old Password or Email Incorrect";
             return status;
         }
 
-        // admin Delete User ==> you should delete anything related to this user from all tables
-        public async Task<StateDto> DeleteUser(DeleteUserDto model)
+        // admin Delete User
+        public async Task<StateDto> DeleteUser(string userEmail)
         {
             StateDto status = new StateDto();
-            var admin = await _userManager.FindByEmailAsync(model.AdminGmail);
-            var user = await _userManager.FindByEmailAsync(model.UserGmail);
 
-            if (admin is not null && user is not null)
+            var currentUser = await GetCurrentUserAsync();
+
+            if (currentUser is null)
             {
-                bool isAdmin = await _userManager.IsInRoleAsync(admin, "Admin");
-                if (isAdmin)
-                {
-                    try
-                    {
-                        // delete all comments for this user
-                        _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == user.Id).ToListAsync());
-                        // delete all posts for this user
-                        _context.Posts.RemoveRange(await _context.Posts.Where(p => p.UserId == user.Id).ToListAsync());
-                        // delete the finished lessons for this user
-                        var finishedLessons = await _userService.GetFinishedLessonsForSpecificUser(user.Id);
-                        _context.FinishedLessons.RemoveRange(await _context.FinishedLessons.Where(fl => fl.UserId == user.Id).ToListAsync());
-                        // unfollow all users this user follow
-                        var followers = await _userService.GetAllFollowers(user.Id);
-                        foreach (var follower in followers.FollowersList)
-                        {
-                            await _userService.UnFollow(user.Id, follower.Id);
-                        }
-                        // remove this user from all users list followers
-                        var followings = await _userService.GetAllFollowing(user.Id);
-                        foreach (var follow in followings.FollowingList)
-                        {
-                            await _userService.UnFollow(follow.Id, user.Id);
-                        }
-
-                        var result = await _userManager.RemoveFromRoleAsync(user, "User");
-                        if (result.Succeeded)
-                        {
-                            result = await _userManager.DeleteAsync(user);
-                            if (result.Succeeded)
-                            {
-                                status.Flag = true;
-                                status.Message = "User Deleted Successfully";
-                                return status;
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        status.Flag = false;
-                        status.Message = $"Error: {ex.Message}";
-                        return status;
-
-                    }
-                }
                 status.Flag = false;
-                status.Message = "You Don't have Permission To Delete User";
+                status.Message = "Login first";
                 return status;
             }
-            status.Flag = false;
-            status.Message = "Admin or User Email Incorrect";
-            return status;
+            var user = await _userManager.FindByEmailAsync(userEmail);
+            if (user == null)
+            {
+                status.Flag = false;
+                status.Message = "User Email Incorrect";
+                return status;
+            }
+
+            bool isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
+            if (!isAdmin)
+            {
+                status.Flag = false;
+                status.Message = "You don't have permission to delete user";
+                return status;
+            }
+
+            try
+            {
+                // Delete related data
+                await DeleteUserRelatedDataAsync(user.Id);
+
+                // Delete user from role and delete user
+                var result = await _userManager.RemoveFromRoleAsync(user, "User");
+                if (result.Succeeded)
+                {
+                    result = await _userManager.DeleteAsync(user);
+                    await _context.SaveChangesAsync();
+                    if (result.Succeeded)
+                    {
+                        status.Flag = true;
+                        status.Message = "User Deleted Successfully";
+                        return status;
+                    }
+                }
+
+                status.Flag = false;
+                status.Message = string.Join("; ", result.Errors.Select(e => e.Description));
+                return status;
+            }
+            catch (Exception ex)
+            {
+                status.Flag = false;
+                status.Message = $"Error: {ex.Message}";
+                return status;
+            }
         }
+
+        private async Task DeleteUserRelatedDataAsync(string userId)
+        {
+            // Delete comments
+            _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == userId).ToListAsync());
+            // Delete posts
+            _context.Posts.RemoveRange(await _context.Posts.Where(p => p.UserId == userId).ToListAsync());
+            // Delete finished lessons
+            _context.FinishedLessons.RemoveRange(await _context.FinishedLessons.Where(fl => fl.UserId == userId).ToListAsync());
+            // Delete images
+            _context.Image.RemoveRange(await _context.Image.Where(i => i.UserId == userId).ToListAsync());
+
+            // Unfollow users this user follows
+            var followers = await _userService.GetAllFollowers(userId);
+            foreach (var follower in followers.FollowersList)
+            {
+                await _userService.UnFollow(userId, follower.Id);
+            }
+
+            // Remove this user from other users' following lists
+            var followings = await _userService.GetAllFollowing(userId);
+            foreach (var follow in followings.FollowingList)
+            {
+                await _userService.UnFollow(follow.Id, userId);
+            }
+
+            // Save changes to database
+            await _context.SaveChangesAsync();
+        }
+
+        // get current logged-in user
+        public async Task<ApplicationUser> GetCurrentUserAsync()
+        {
+            var httpContext = _httpContextAccessor.HttpContext;
+            if (httpContext.User == null)
+            {
+                return null;
+            }
+            string id = httpContext.User.FindFirstValue("uid") ?? string.Empty;
+            var user = await _userManager.FindByIdAsync(id);
+            if (user is null)
+                return null;
+            return user;
+        }
+
     }
 }

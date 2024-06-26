@@ -1,4 +1,5 @@
 ﻿using Code_Road.Dto.Account;
+using Code_Road.Models;
 using Microsoft.AspNetCore.Identity;
 
 namespace Code_Road.Services.PostService.AuthService
@@ -12,6 +13,7 @@ namespace Code_Road.Services.PostService.AuthService
         Task<StateDto> AddUserToRoleAsync(AddUserToRoleDto model);
         Task<string> GetUserName(string Id);
         Task<StateDto> UpdatePassword(UpdatePasswordDto model);
-        Task<StateDto> DeleteUser(DeleteUserDto model);
+        Task<StateDto> DeleteUser(string userEmail);
+        Task<ApplicationUser> GetCurrentUserAsync();
     }
 }

@@ -33,6 +33,7 @@ namespace Code_Road
             builder.Services.AddSwaggerGen();
 
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
             builder.Services.AddScoped<ICommentService, CommentService>();
@@ -42,6 +43,8 @@ namespace Code_Road
             builder.Services.AddScoped<ITopicService, TopicService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPostService, PostService>();
+
+            builder.Services.AddLogging();
 
             //configure Identity Users
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>

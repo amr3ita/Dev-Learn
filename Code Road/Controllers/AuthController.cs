@@ -1,5 +1,6 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Services.PostService.AuthService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Code_Road.Controllers
@@ -40,7 +41,7 @@ namespace Code_Road.Controllers
 
         [HttpGet("verifyemail")]
         [NonAction]
-        public async Task<IActionResult> VerifyEmail(string userId, string token)
+        private async Task<IActionResult> VerifyEmail(string userId, string token)
         {
             var result = await _authService.VerifyEmail(userId, token);
             if (result.Succeeded)
@@ -97,11 +98,13 @@ namespace Code_Road.Controllers
         }
 
         [HttpDelete("DeleteUser")]
-        public async Task<IActionResult> DeleteUserAsync(DeleteUserDto model)
+        //[Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserAsync(string userEmail)
         {
+
             if (ModelState.IsValid)
             {
-                StateDto status = await _authService.DeleteUser(model);
+                StateDto status = await _authService.DeleteUser(userEmail);
                 if (status.Flag)
                     return Ok(new { Message = status.Message });
                 return BadRequest(status.Message);
@@ -109,5 +112,20 @@ namespace Code_Road.Controllers
             return BadRequest(ModelState);
         }
 
+        [HttpGet("GetCurrentUser")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var user = await _authService.GetCurrentUserAsync();
+                return Ok(new { Name = $"{user.FirstName + " " + user.LastName}", Email = user.Email });
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace Code_Road.Controllers
         {
             _commentService = commentService;
         }
-        [HttpGet("CommentsForPost({postId:int})")]
+        [HttpGet("CommentsForPost/{postId:int}")]
         public async Task<IActionResult> GetComments(int postId)
         {
             if (!ModelState.IsValid)
