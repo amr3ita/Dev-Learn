@@ -44,7 +44,7 @@ namespace Code_Road
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPostService, PostService>();
 
-            builder.Services.AddLogging();
+            //builder.Services.AddLogging();
 
             //configure Identity Users
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>

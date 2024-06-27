@@ -40,8 +40,8 @@ namespace Code_Road.Controllers
         }
 
         [HttpGet("verifyemail")]
-        [NonAction]
-        private async Task<IActionResult> VerifyEmail(string userId, string token)
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<IActionResult> VerifyEmail(string userId, string token)
         {
             var result = await _authService.VerifyEmail(userId, token);
             if (result.Succeeded)
@@ -78,6 +78,20 @@ namespace Code_Road.Controllers
                 return BadRequest(state.Message);
 
             return Ok(state.Message);
+        }
+
+        [HttpPut("UpdateName")]
+        public async Task<IActionResult> UpdateName(string FirstName, string LastName)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            StateDto status = await _authService.UpdateName(FirstName, LastName);
+            if (!status.Flag)
+                return BadRequest(status.Message);
+            return Ok(status.Message);
+
         }
 
         [HttpPut("UpdatePassword")]
@@ -119,7 +133,8 @@ namespace Code_Road.Controllers
             try
             {
                 var user = await _authService.GetCurrentUserAsync();
-                return Ok(new { Name = $"{user.FirstName + " " + user.LastName}", Email = user.Email });
+                //return Ok(new { Name = $"{user.FirstName + " " + user.LastName}", Email = user.Email });
+                return Ok(user);
 
             }
             catch (Exception ex)

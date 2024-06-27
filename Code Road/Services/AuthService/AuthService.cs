@@ -25,8 +25,9 @@ namespace Code_Road.Services.PostService.AuthService
         private readonly IWebHostEnvironment _environment;
         private readonly IUserService _userService;
         private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IPostService _postService;
 
-        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
+        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IPostService postService)
 
         {
             _context = context;
@@ -38,6 +39,7 @@ namespace Code_Road.Services.PostService.AuthService
             _environment = environment;
             _userService = userService;
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+            _postService = postService;
         }
 
         // Get All Users
@@ -54,6 +56,7 @@ namespace Code_Road.Services.PostService.AuthService
             if (await _userManager.FindByEmailAsync(model.Email) is not null)
             {
                 state.Flag = false;
+                state.Message = "This Email Is Exist!!";
                 return new AuthDto() { Status = state };
             }
             // If userName is exit
@@ -215,6 +218,38 @@ namespace Code_Road.Services.PostService.AuthService
             return string.Empty;
         }
 
+        // Update Name
+        public async Task<StateDto> UpdateName(string FirstName, string LastName)
+        {
+            StateDto state = new StateDto();
+            try
+            {
+                var currentUser = await GetCurrentUserAsync();
+                if (currentUser is not null)
+                {
+                    currentUser.userInfo.FirstName = FirstName;
+                    currentUser.userInfo.LastName = LastName;
+
+                    await _userManager.UpdateAsync(currentUser.userInfo);
+                    await _context.SaveChangesAsync();
+
+                    state.Flag = true;
+                    state.Message = "Updated Successfully";
+                }
+                else
+                {
+                    state.Flag = false;
+                    state.Message = "Something Error!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                state.Flag = false;
+                state.Message = $"Error: {ex.Message}";
+            }
+            return state;
+        }
+
         // Update Password
         public async Task<StateDto> UpdatePassword(UpdatePasswordDto model)
         {
@@ -255,8 +290,9 @@ namespace Code_Road.Services.PostService.AuthService
         {
             StateDto status = new StateDto();
 
-            var currentUser = await GetCurrentUserAsync();
+            var currentUserDetails = await GetCurrentUserAsync();
 
+            var currentUser = currentUserDetails.userInfo;
             if (currentUser is null)
             {
                 status.Flag = false;
@@ -339,19 +375,32 @@ namespace Code_Road.Services.PostService.AuthService
         }
 
         // get current logged-in user
-        public async Task<ApplicationUser> GetCurrentUserAsync()
+        public async Task<AllUserDataDto> GetCurrentUserAsync()
         {
+            AllUserDataDto user = new AllUserDataDto();
             var httpContext = _httpContextAccessor.HttpContext;
             if (httpContext.User == null)
             {
                 return null;
             }
             string id = httpContext.User.FindFirstValue("uid") ?? string.Empty;
-            var user = await _userManager.FindByIdAsync(id);
+            user.userInfo = await _userManager.FindByIdAsync(id);
+
+            // get posts for this user
+            user.posts = await _postService.GetAllByUserIdAsync(user.userInfo.Id);
+
+            // get finished lessons for this user
+            var finishedLessons = await _userService.GetFinishedLessonsForSpecificUser(user.userInfo.Id);
+            user.finishedLessons = finishedLessons.Lessons;
+
+            // get the image of this user
+            user.userImage = await _userService.GetUserImage(user.userInfo.Id);
+
             if (user is null)
                 return null;
             return user;
         }
+
         private async Task<StateDto> SetDefaultAvatarImage(string userId)
         {
             try
@@ -360,7 +409,7 @@ namespace Code_Road.Services.PostService.AuthService
                 string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
                 Image image = new Image() { ImageUrl = hosturl + "/Upload/User/Avatar/Avatar.jpg", UserId = userId };
                 await _context.AddAsync(image);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
                 return new StateDto() { Flag = true, Message = "Added Successfully" };
             }
             catch (Exception ex)

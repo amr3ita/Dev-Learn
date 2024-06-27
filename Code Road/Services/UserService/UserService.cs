@@ -206,7 +206,6 @@ namespace Code_Road.Services.UserService
             StateDto state = await GetImagePath(image, userId);
             if (state.Flag)
             {
-
                 return state;
             }
             return new StateDto { Flag = false, Message = "failed" };
