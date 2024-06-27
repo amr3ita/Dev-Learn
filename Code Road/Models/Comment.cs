@@ -15,6 +15,7 @@ namespace Code_Road.Models
         public DateTime Date { get; set; }
         public virtual ApplicationUser User { get; set; }
         public virtual Post Post { get; set; }
+        public virtual List<CommentVote>? CommentVotes { get; set; }
 
     }
 }

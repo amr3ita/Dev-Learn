@@ -14,6 +14,7 @@ namespace Code_Road.Services.UserService
         Task<StateDto> UpdateUserImage(string userId, IFormFile image);
         Task<StateDto> DeleteUserImage(string userId);
         public Task<string> GetUserImage(string userId);
+        public Task<int> ActiveDays(string userId);
 
     }
 }

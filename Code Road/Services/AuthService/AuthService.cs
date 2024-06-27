@@ -72,7 +72,9 @@ namespace Code_Road.Services.PostService.AuthService
                 FirstName = model.FirstName,
                 LastName = model.LastName,
                 Email = model.Email,
-                UserName = model.Username
+                UserName = model.Username,
+                ActiceDay = DateTime.Now,
+                OnlineDays = 0
             };
 
             var result = await _userManager.CreateAsync(user, model.Password);
@@ -108,6 +110,7 @@ namespace Code_Road.Services.PostService.AuthService
                 Status = state,
                 UserName = user.UserName,
                 Email = user.Email,
+                LastCountinusActiveDays = 0,
                 TokenExpiresOn = jwtSecurityToken.ValidTo,
                 IsAuthenticated = true,
                 Roles = new List<string> { Roles.User.ToString() },
@@ -181,6 +184,7 @@ namespace Code_Road.Services.PostService.AuthService
 
             authModel.Status = state;
             authModel.Email = user.Email;
+            authModel.LastCountinusActiveDays = await _userService.ActiveDays(user.Id);
             authModel.IsAuthenticated = true;
             authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken);
             authModel.UserName = user.UserName;

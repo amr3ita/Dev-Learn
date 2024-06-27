@@ -42,8 +42,8 @@ namespace Code_Road.Controllers
                 return BadRequest(comment.State.Message);
             return Ok(comment);
         }
-        [HttpDelete("UserDeleteHisComment")]
         [Authorize]
+        [HttpDelete("DeleteComment")]
         public async Task<IActionResult> DeleteComment(int commentId, int postId)
         {
 
@@ -55,14 +55,50 @@ namespace Code_Road.Controllers
                 return BadRequest(state.Message);
             return Ok(state.Message);
         }
-        [HttpPost("UserAddThisCooment")]
         [Authorize]
-        public async Task<IActionResult> AddComment(int postId, EditDto model)
+        [HttpPost("AddComment")]
+        public async Task<IActionResult> AddComment(int postId, string content)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            StateDto state = await _commentService.AddComment(postId, content);
+            if (!state.Flag)
+                return BadRequest(state.Message);
+            return Ok(state);
+        }
+        [Authorize]
+        [HttpGet("GetUpVotes/{commentId:int}")]
+        public async Task<IActionResult> GetUpVotes(int commentId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var votes = await _commentService.GetUpVotes(commentId);
+            if (!votes[0].State.Flag)
+                return BadRequest(votes[0].State.Message);
+            return Ok(votes);
+
+        }
+        [Authorize]
+        [HttpGet("GetDownVotes/{commentId:int}")]
+        public async Task<IActionResult> GetDownVotes(int commentId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var votes = await _commentService.GetDownVotes(commentId);
+            if (!votes[0].State.Flag)
+                return BadRequest(votes[0].State.Message);
+            return Ok(votes);
+
+        }
+        [Authorize]
+        [HttpPost("Vote")]
+        public async Task<IActionResult> Vote(int commentId, int vote)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
             string userId = await getLogginUserId();
-            StateDto state = await _commentService.AddComment(postId, userId, model);
+            StateDto state = await _commentService.Vote(commentId, vote);
             if (!state.Flag)
                 return BadRequest(state.Message);
             return Ok(state);
