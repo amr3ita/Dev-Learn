@@ -6,6 +6,6 @@ namespace Code_Road.Dto.User
     {
         public StateDto State { get; set; }
         public int Count { get; set; }
-        public List<FinishedLessonDetailsDto>? Lessons { get; set; }
+        public List<FinishedLessonDetailsDto>? FinishedLessons { get; set; }
     }
 }

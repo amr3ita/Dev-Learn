@@ -391,7 +391,7 @@ namespace Code_Road.Services.PostService.AuthService
 
             // get finished lessons for this user
             var finishedLessons = await _userService.GetFinishedLessonsForSpecificUser(user.userInfo.Id);
-            user.finishedLessons = finishedLessons.Lessons;
+            user.finishedLessons = finishedLessons.FinishedLessons;
 
             // get the image of this user
             user.userImage = await _userService.GetUserImage(user.userInfo.Id);
