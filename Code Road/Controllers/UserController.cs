@@ -70,6 +70,7 @@ namespace Code_Road.Controllers
             return Ok(follower);
         }
         #endregion
+        #region FinishedLesson
         [Authorize]
         [HttpGet("GetFinishedLessonsForSpecificUser")]
         public async Task<IActionResult> GetFinishedLessonsForSpecificUser()
@@ -91,6 +92,8 @@ namespace Code_Road.Controllers
             StateDto state = await _userService.FinishLesson(userId, lessonId, degree);
             return Ok(state);
         }
+        #endregion
+        #region User Image
         [HttpGet("GetUserImage")]
         public async Task<IActionResult> GetUserImage(string userId)
         {
@@ -121,6 +124,15 @@ namespace Code_Road.Controllers
                 return Ok(state);
             return BadRequest(state);
 
+        }
+        #endregion
+        [HttpGet("getUSerActiveDays")]
+        [Authorize]
+        public async Task<IActionResult> getUSerActiveDays()
+        {
+            string userId = await getLogginUserId();
+            int days = await _userService.ActiveDays(userId);
+            return Ok(days);
         }
         private async Task<string> getLogginUserId()
         {

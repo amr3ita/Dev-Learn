@@ -194,7 +194,7 @@ namespace Code_Road.Services.UserService
         {
             StateDto state = await CheckUserId(userId);
             if (!state.Flag) return "invalid User";
-            Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null);
+            Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null && u.LessonId == null);
             if (img is not null)
                 return img.ImageUrl;
             var httpContext = _httpContextAccessor.HttpContext;
@@ -222,6 +222,29 @@ namespace Code_Road.Services.UserService
             return new StateDto { Flag = false, Message = "failed" };
 
         }
+        public async Task<int> ActiveDays(string userId)
+        {
+            StateDto state = await CheckUserId(userId);
+
+            if (!state.Flag) return 0;
+            var user = await _user.FindByIdAsync(userId);
+
+            if (((DateTime.Now.Day) - (user.ActiceDay.Day)) == 1)
+            {
+                user.OnlineDays++;
+                user.ActiceDay = DateTime.Now;
+                await _user.UpdateAsync(user);
+                return user.OnlineDays;
+            }
+            user.OnlineDays = 0;
+            user.ActiceDay = DateTime.Now;
+            await _user.UpdateAsync(user);
+            return 0;
+            {
+
+            }
+        }
+        #region Private
         private async Task<StateDto> GetImagePath(IFormFile image, string userId)
         {
             StateDto state = await CheckUserId(userId);
@@ -246,7 +269,7 @@ namespace Code_Road.Services.UserService
                 await image.CopyToAsync(stream);
             }
             string imgUrl = hosturl + "/Upload/User/" + $"{user.UserName}/" + user.UserName + ".png";
-            Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null);
+            Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null && u.LessonId == null);
             if (img is not null)
             {
                 _context.Image.Remove(img);
@@ -276,7 +299,7 @@ namespace Code_Road.Services.UserService
                 {
                     File.Delete(imgpath);
                 }
-                Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null);
+                Image? img = await _context.Image.FirstOrDefaultAsync(u => u.UserId == userId && u.PostId == null && u.LessonId == null);
                 img.ImageUrl = hosturl + "/Upload/User/Avatar/Avatar.jpg";
                 _context.Image.Update(img);
                 await _context.SaveChangesAsync();
@@ -330,5 +353,6 @@ namespace Code_Road.Services.UserService
 
             return finishedLesson.Name;
         }
+        #endregion
     }
 }
