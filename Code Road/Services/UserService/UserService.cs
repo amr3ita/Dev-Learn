@@ -147,7 +147,7 @@ namespace Code_Road.Services.UserService
                 return finishedLessons;
             state.Flag = false;
             state.Message = "there is now followings";
-            finishedLessons.Lessons = new List<FinishedLessonDetailsDto>();
+            finishedLessons.FinishedLessons = new List<FinishedLessonDetailsDto>();
             var lessons = _context.FinishedLessons.Where(u => u.UserId == userId).ToList();
             if (lessons is null)
             {
@@ -160,7 +160,7 @@ namespace Code_Road.Services.UserService
             foreach (var lesson in lessons)
             {
                 string finishedLessonName = await CheckLessonId(lesson.LessonId);
-                finishedLessons.Lessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, Degree = lesson.Degree });
+                finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, Degree = lesson.Degree });
             }
             return finishedLessons;
         }
