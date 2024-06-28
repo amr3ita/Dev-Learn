@@ -257,13 +257,27 @@ namespace Code_Road.Services.PostService.AuthService
         public async Task<StateDto> UpdateUserName(string userName)
         {
             StateDto state = new StateDto();
+            if (await _userManager.FindByNameAsync(userName) is not null)
+            {
+                state.Flag = false;
+                state.Message = "This UserName Is Exist!!";
+                return state;
+            }
             try
             {
                 var currentUser = await GetCurrentUserAsync();
                 if (currentUser is not null)
                 {
+                    if (await _context.Comments_Vote.AnyAsync(cv => cv.UserName == currentUser.userInfo.UserName))
+                    {
+                        List<CommentVote> cv = await _context.Comments_Vote.Where(cv => cv.UserName == currentUser.userInfo.UserName).ToListAsync();
+                        foreach (var vote in cv)
+                        {
+                            vote.UserName = userName;
+                        }
+                        _context.Comments_Vote.UpdateRange(cv);
+                    }
                     currentUser.userInfo.UserName = userName;
-
 
                     await _userManager.UpdateAsync(currentUser.userInfo);
                     await _context.SaveChangesAsync();
@@ -482,7 +496,7 @@ namespace Code_Road.Services.PostService.AuthService
             }
             string id = httpContext.User.FindFirstValue("uid") ?? string.Empty;
             user.userInfo = await _userManager.FindByIdAsync(id);
-
+            user.IsAdmin = await _userManager.IsInRoleAsync(user.userInfo, "Admin");
             // get posts for this user
             user.posts = await _postService.GetAllByUserIdAsync(user.userInfo.Id);
 

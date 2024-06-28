@@ -7,7 +7,9 @@ namespace Code_Road.Dto.Post
     {
         public StateDto Status { get; set; }
         public int PostId { get; set; }
+        public string UserId { get; set; }
         public string UserName { get; set; }
+        public string UserImage { get; set; }
         public string Content { get; set; }
         public int? Up { get; set; }
         public int? Down { get; set; }
