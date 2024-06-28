@@ -80,6 +80,7 @@ namespace Code_Road.Controllers
             return Ok(state.Message);
         }
 
+        [Authorize]
         [HttpPut("UpdateName")]
         public async Task<IActionResult> UpdateName(string FirstName, string LastName)
         {
@@ -93,6 +94,7 @@ namespace Code_Road.Controllers
             return Ok(status.Message);
 
         }
+        [Authorize]
         [HttpPut("UpdateUSerName")]
         public async Task<IActionResult> UpdateUserName(string userName)
         {
