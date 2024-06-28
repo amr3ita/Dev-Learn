@@ -93,6 +93,19 @@ namespace Code_Road.Controllers
             return Ok(status.Message);
 
         }
+        [HttpPut("UpdateUSerName")]
+        public async Task<IActionResult> UpdateUserName(string userName)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            StateDto status = await _authService.UpdateUserName(userName);
+            if (!status.Flag)
+                return BadRequest(status.Message);
+            return Ok(status.Message);
+
+        }
 
         [HttpPut("UpdatePassword")]
         public async Task<IActionResult> UpdatePasswordAsync(UpdatePasswordDto model)

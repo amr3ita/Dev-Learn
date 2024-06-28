@@ -12,6 +12,7 @@ namespace Code_Road.Services.PostService.AuthService
         Task<StateDto> AddUserToRoleAsync(AddUserToRoleDto model);
         Task<string> GetUserName(string Id);
         Task<StateDto> UpdateName(string FirstName, string LastName);
+        Task<StateDto> UpdateUserName(string userName);
         Task<StateDto> UpdatePassword(UpdatePasswordDto model);
         Task<StateDto> DeleteUser(string userEmail);
         Task<AllUserDataDto> GetCurrentUserAsync();

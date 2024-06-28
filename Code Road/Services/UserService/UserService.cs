@@ -228,21 +228,25 @@ namespace Code_Road.Services.UserService
 
             if (!state.Flag) return 0;
             var user = await _user.FindByIdAsync(userId);
-
-            if (((DateTime.Now.Day) - (user.ActiceDay.Day)) == 1)
+            if (((DateTime.Now.Day) != (user.ActiceDay.Day)))
             {
-                user.OnlineDays++;
+
+                if (((DateTime.Now.Day) - (user.ActiceDay.Day)) == 1)
+                {
+                    user.OnlineDays++;
+                    user.ActiceDay = DateTime.Now;
+                    await _user.UpdateAsync(user);
+                    return user.OnlineDays;
+                }
+                user.OnlineDays = 0;
                 user.ActiceDay = DateTime.Now;
                 await _user.UpdateAsync(user);
-                return user.OnlineDays;
-            }
-            user.OnlineDays = 0;
-            user.ActiceDay = DateTime.Now;
-            await _user.UpdateAsync(user);
-            return 0;
-            {
+                return 0;
+                {
 
+                }
             }
+            return user.OnlineDays;
         }
         #region Private
         private async Task<StateDto> GetImagePath(IFormFile image, string userId)
