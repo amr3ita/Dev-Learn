@@ -253,6 +253,37 @@ namespace Code_Road.Services.PostService.AuthService
             }
             return state;
         }
+        // Update User Name
+        public async Task<StateDto> UpdateUserName(string userName)
+        {
+            StateDto state = new StateDto();
+            try
+            {
+                var currentUser = await GetCurrentUserAsync();
+                if (currentUser is not null)
+                {
+                    currentUser.userInfo.UserName = userName;
+
+
+                    await _userManager.UpdateAsync(currentUser.userInfo);
+                    await _context.SaveChangesAsync();
+
+                    state.Flag = true;
+                    state.Message = "Updated Successfully";
+                }
+                else
+                {
+                    state.Flag = false;
+                    state.Message = "Something Error!!";
+                }
+            }
+            catch (Exception ex)
+            {
+                state.Flag = false;
+                state.Message = $"Error: {ex.Message}";
+            }
+            return state;
+        }
 
         // Update Password
         public async Task<StateDto> UpdatePassword(UpdatePasswordDto model)

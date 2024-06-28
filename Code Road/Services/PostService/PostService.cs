@@ -201,7 +201,7 @@ namespace Code_Road.Services.PostService
                 _context.Image.RemoveRange(images);
                 old_post.Images = await GetImagePath(postModel.Images, user.UserName, old_post.Id, old_post.UserId);
             }
-
+            _context.Posts.Update(old_post);
             //old_post.Content =postModel.Content;
             await _context.SaveChangesAsync();
             Console.WriteLine($"After operation {old_post.Content}");
