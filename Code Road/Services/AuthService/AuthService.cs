@@ -380,8 +380,70 @@ namespace Code_Road.Services.PostService.AuthService
                 return status;
             }
         }
+        // user delete his account
+        public async Task<StateDto> DeleteUserAccount()
+        {
+            StateDto status = new StateDto();
+
+            var currentUserDetails = await GetCurrentUserAsync();
+
+            var currentUser = currentUserDetails.userInfo;
+            if (currentUser is null)
+            {
+                status.Flag = false;
+                status.Message = "Login first";
+                return status;
+            }
+            //var user = await _userManager.FindByEmailAsync(userEmail);
+            //if (user == null)
+            //{
+            //    status.Flag = false;
+            //    status.Message = "User Email Incorrect";
+            //    return status;
+            //}
+
+            //bool isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
+            //if (!isAdmin)
+            //{
+            //    status.Flag = false;
+            //    status.Message = "You don't have permission to delete user";
+            //    return status;
+            //}
+
+            try
+            {
+                // Delete related data
+                await DeleteUserRelatedDataAsync(currentUser.Id);
+
+                // Delete user from role and delete user
+                var result = await _userManager.RemoveFromRoleAsync(currentUser, "User");
+                if (result.Succeeded)
+                {
+                    result = await _userManager.DeleteAsync(currentUser);
+                    await _context.SaveChangesAsync();
+                    if (result.Succeeded)
+                    {
+                        status.Flag = true;
+                        status.Message = "User Deleted Successfully";
+                        return status;
+                    }
+                }
+
+                status.Flag = false;
+                status.Message = string.Join("; ", result.Errors.Select(e => e.Description));
+                return status;
+            }
+            catch (Exception ex)
+            {
+                status.Flag = false;
+                status.Message = $"Error: {ex.Message}";
+                return status;
+            }
+        }
         private async Task DeleteUserRelatedDataAsync(string userId)
         {
+            // Delete comment Votes
+            _context.Comments_Vote.RemoveRange(await _context.Comments_Vote.Where(cv => cv.UserId == userId).ToListAsync());
             // Delete comments
             _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == userId).ToListAsync());
             // Delete posts
