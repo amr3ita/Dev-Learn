@@ -15,6 +15,7 @@ namespace Code_Road.Services.PostService.AuthService
         Task<StateDto> UpdateUserName(string userName);
         Task<StateDto> UpdatePassword(UpdatePasswordDto model);
         Task<StateDto> DeleteUser(string userEmail);
+        Task<StateDto> DeleteUserAccount();
         Task<AllUserDataDto> GetCurrentUserAsync();
     }
 }

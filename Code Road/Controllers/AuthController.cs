@@ -126,7 +126,7 @@ namespace Code_Road.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpDelete("DeleteUser")]
+        [HttpDelete("AdminDeleteUser")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserAsync(string userEmail)
         {
@@ -134,6 +134,20 @@ namespace Code_Road.Controllers
             if (ModelState.IsValid)
             {
                 StateDto status = await _authService.DeleteUser(userEmail);
+                if (status.Flag)
+                    return Ok(new { Message = status.Message });
+                return BadRequest(status.Message);
+            }
+            return BadRequest(ModelState);
+        }
+        [HttpDelete("DeleteUser")]
+        [Authorize]
+        public async Task<IActionResult> DeleteUserAccountAsync()
+        {
+
+            if (ModelState.IsValid)
+            {
+                StateDto status = await _authService.DeleteUserAccount();
                 if (status.Flag)
                     return Ok(new { Message = status.Message });
                 return BadRequest(status.Message);
