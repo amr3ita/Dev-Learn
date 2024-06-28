@@ -13,6 +13,7 @@ namespace Code_Road.Models
         public DateTime Date { get; set; }
         public virtual List<Image> Images { get; set; }
         public virtual List<Comment> comments { get; set; }
+        public virtual List<PostVote>? PostVotes { get; set; }
         public virtual ApplicationUser User { get; set; }
     }
 }

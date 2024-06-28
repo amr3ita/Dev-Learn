@@ -337,9 +337,113 @@ namespace Code_Road.Services.PostService
             return Task.FromResult(state);
         }
 
-        #region Up and Down aactions
+        #region add vote
+        /*
+         * if user has a vote allreyd ==> he need change vate 'cheek if the vote the same vote or not '
+         if have vote and up voted ,isVote =true you need to be down 
+        send isvote =false
+        1- decrease up  2-increase down
+         if have vote and Down voted ,isVote = false need to be up
+        1- decrease down  2-increase up
 
-        public async Task<StateDto> IncreaseUpvoteAsync(int postId)
+         */
+        public async Task<StateDto> VoteAsync(int postId, string userId, bool isVote)
+        {
+            //check user and post 
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return new StateDto { Flag = false, Message = "Invalid user 'user not Found!' " };
+            }
+
+            var post = await GetByIdAsync(postId);
+
+            if (post.Status.Flag == false)
+            {
+                return post.Status;
+            }
+
+            var existingVote = await _context.PostVotes.FirstOrDefaultAsync(v => v.UserId == userId && v.PostId == postId);
+
+            if (existingVote != null)
+            {
+                if (existingVote.IsVote == isVote)
+                {
+                    if (isVote == true)
+                    {
+                        await DecreaseUpvoteAsync(existingVote.PostId);
+                    }
+                    else
+                    {
+                        await DecreaseDownvoteAsync(existingVote.PostId);
+
+                    }
+                    _context.PostVotes.Remove(existingVote);
+                    await _context.SaveChangesAsync();
+                    return new StateDto { Flag = true, Message = "Vote Deleted Successfully" };
+                }
+                existingVote.IsVote = isVote;
+                if (isVote)//if vote true need to change frome down to up  
+                {
+                    await DecreaseDownvoteAsync(existingVote.PostId);
+                    await IncreaseUpvoteAsync(existingVote.PostId);
+                }
+                else//if vote false need to change frome up to down
+                {
+                    await DecreaseUpvoteAsync(existingVote.PostId);
+                    await IncreaseDownvoteAsync(existingVote.PostId);
+                }
+                _context.Update(existingVote);
+                await _context.SaveChangesAsync();
+                return new StateDto { Flag = true, Message = "Vote updated successfully" };
+            }
+            else
+            {
+
+                // If the user doesn't have a previous vote, create a new vote
+                var newVote = new PostVote
+                {
+                    UserId = userId,
+                    PostId = postId,
+                    IsVote = isVote,
+                    UserName = user.UserName
+                };
+                await _context.PostVotes.AddAsync(newVote);
+
+                if (isVote)
+                {
+                    await IncreaseUpvoteAsync(newVote.PostId);
+                }
+                else
+                {
+                    await IncreaseDownvoteAsync(newVote.PostId);
+                }
+            }
+            await _context.SaveChangesAsync();
+
+            return new StateDto { Flag = true, Message = "Vote recorded successfully" };
+        }
+        public async Task<List<PostVoteDto>> GetAllVotesAsync(int postId)
+        {
+            var vots =await _context.PostVotes.
+                 Where(p=>p.PostId ==postId)
+                .Select(p => new PostVoteDto
+                {
+                    IsVote=p.IsVote,
+                    UserName=p.UserName
+                }).ToListAsync();
+            if (vots.Count() <1 )
+                return null;   
+            
+            return vots;
+        }
+
+            //user id = 2f040b42-d049-4553-95ec-1d9de4169f0f
+            #endregion
+            #region Up and Down actions
+
+            private async Task<StateDto> IncreaseUpvoteAsync(int postId)
         {
             var post = await _context.Posts.FindAsync(postId);
             if (post == null)
@@ -354,7 +458,7 @@ namespace Code_Road.Services.PostService
             return new StateDto { Flag = true, Message = "Upvote increased successfully." };
         }
 
-        public async Task<StateDto> IncreaseDownvoteAsync(int postId)
+        private async Task<StateDto> IncreaseDownvoteAsync(int postId)
         {
             var post = await _context.Posts.FindAsync(postId);
             if (post == null)
@@ -369,7 +473,7 @@ namespace Code_Road.Services.PostService
             return new StateDto { Flag = true, Message = "Downvote increased successfully." };
         }
 
-        public async Task<StateDto> DecreaseUpvoteAsync(int postId)
+        private async Task<StateDto> DecreaseUpvoteAsync(int postId)
         {
             var post = await _context.Posts.FindAsync(postId);
             if (post == null)
@@ -388,7 +492,7 @@ namespace Code_Road.Services.PostService
             return new StateDto { Flag = false, Message = "Upvote is already at minimum." };
         }
 
-        public async Task<StateDto> DecreaseDownvoteAsync(int postId)
+        private async Task<StateDto> DecreaseDownvoteAsync(int postId)
         {
             var post = await _context.Posts.FindAsync(postId);
             if (post == null)

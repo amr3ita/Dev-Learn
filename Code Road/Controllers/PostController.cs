@@ -76,8 +76,28 @@ namespace Code_Road.Controllers
             }
             return Ok(state.Message);
         }
-
+        [HttpPost("AddVote/{postId}")]
+        public async Task<IActionResult> Vote(int postId, string userId, bool isVote)
+        {
+            var result = await _postService.VoteAsync(postId, userId, isVote);
+            if (result.Flag)
+            {
+                return Ok(result.Message);
+            }
+            return BadRequest(result.Message);
+        }
+        [HttpGet("PostVotes")]
+        public async Task<IActionResult> GetAllVotes(int postId)
+        {
+            var vots= await _postService.GetAllVotesAsync(postId);
+            if (vots is null)
+            {
+                return BadRequest("no vote added yet");
+            }
+            return Ok(vots);
+        }
         #region Up and Down aactions
+        /*
         [HttpPut("IncreaseUpvote/{postId}")]
         public async Task<IActionResult> IncreaseUpvote(int postId)
         {
@@ -121,6 +141,7 @@ namespace Code_Road.Controllers
             }
             return BadRequest(result.Message);
         }
+        */
         #endregion
 
 

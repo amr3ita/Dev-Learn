@@ -1,5 +1,6 @@
 ﻿using Code_Road.Dto.Post;
 using Code_Road.Dto.Account;
+using Code_Road.Models;
 
 namespace Code_Road.Services.PostService
 {
@@ -11,11 +12,8 @@ namespace Code_Road.Services.PostService
         public Task<PostDto> AddPostAsync(AddPostDto postModel);
         public Task<PostDto> UpdatePostAsync(int post_id, UpdatePostDto postModel);
         public Task<StateDto> DeletePostAsync(int post_id, string user_id);
-
-        Task<StateDto> IncreaseUpvoteAsync(int postId);
-        Task<StateDto> IncreaseDownvoteAsync(int postId);
-        Task<StateDto> DecreaseUpvoteAsync(int postId);
-        Task<StateDto> DecreaseDownvoteAsync(int postId);
+        public Task<StateDto> VoteAsync(int postId, string userId, bool isVote);
+        public Task<List<PostVoteDto>> GetAllVotesAsync(int postId);
 
     }
 }

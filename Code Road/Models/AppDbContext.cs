@@ -8,6 +8,7 @@ namespace Code_Road.Models
         public DbSet<Topic> Topics { get; set; }
         public DbSet<Lesson> Lessons { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<PostVote> PostVotes { get; set; }
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Quiz> Quizzes { get; set; }
         public DbSet<Question> Questions { get; set; }
