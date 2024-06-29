@@ -4,6 +4,7 @@ using Code_Road.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Code_Road.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240627142419_commentVote")]
+    partial class commentVote
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -301,37 +304,6 @@ namespace Code_Road.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("Code_Road.Models.PostVote", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsVote")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PostVotes");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Question", b =>
@@ -668,25 +640,6 @@ namespace Code_Road.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Code_Road.Models.PostVote", b =>
-                {
-                    b.HasOne("Code_Road.Models.Post", "Post")
-                        .WithMany("PostVotes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Code_Road.Models.ApplicationUser", "User")
-                        .WithMany("PostVotes")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Code_Road.Models.Question", b =>
                 {
                     b.HasOne("Code_Road.Models.Quiz", "Quiz")
@@ -765,8 +718,6 @@ namespace Code_Road.Migrations
                     b.Navigation("Image")
                         .IsRequired();
 
-                    b.Navigation("PostVotes");
-
                     b.Navigation("Posts");
                 });
 
@@ -786,8 +737,6 @@ namespace Code_Road.Migrations
             modelBuilder.Entity("Code_Road.Models.Post", b =>
                 {
                     b.Navigation("Images");
-
-                    b.Navigation("PostVotes");
 
                     b.Navigation("comments");
                 });

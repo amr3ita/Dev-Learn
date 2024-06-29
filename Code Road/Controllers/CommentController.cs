@@ -1,7 +1,9 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Comment;
 using Code_Road.Services.CommentService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Code_Road.Controllers
 {
@@ -15,7 +17,7 @@ namespace Code_Road.Controllers
         {
             _commentService = commentService;
         }
-        [HttpGet("CommentsForPost({postId:int})")]
+        [HttpGet("CommentsForPost/{postId:int}")]
         public async Task<IActionResult> GetComments(int postId)
         {
             if (!ModelState.IsValid)
@@ -29,36 +31,83 @@ namespace Code_Road.Controllers
             return Ok(comments);
         }
         [HttpPatch("edit")]
-        public async Task<IActionResult> EditComment(int commentId, string userId, EditDto model)
+        [Authorize]
+        public async Task<IActionResult> EditComment(int commentId, EditDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            string userId = await getLogginUserId();
             CommentDto comment = await _commentService.EditComment(commentId, userId, model);
             if (!comment.State.Flag)
                 return BadRequest(comment.State.Message);
             return Ok(comment);
         }
-        [HttpDelete("UserDeleteHisComment")]
-
-        public async Task<IActionResult> DeleteComment(int commentId, int postId, string userId)
+        [Authorize]
+        [HttpDelete("DeleteComment")]
+        public async Task<IActionResult> DeleteComment(int commentId, int postId)
         {
 
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
+            string userId = await getLogginUserId();
             StateDto state = await _commentService.DeleteComment(commentId, postId, userId);
             if (!state.Flag)
                 return BadRequest(state.Message);
             return Ok(state.Message);
         }
-        [HttpPost("UserAddThisCooment")]
-        public async Task<IActionResult> AddComment(int postId, string userId, EditDto model)
+        [Authorize]
+        [HttpPost("AddComment")]
+        public async Task<IActionResult> AddComment(int postId, string content)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            StateDto state = await _commentService.AddComment(postId, userId, model);
+
+            StateDto state = await _commentService.AddComment(postId, content);
             if (!state.Flag)
                 return BadRequest(state.Message);
             return Ok(state);
+        }
+        [Authorize]
+        [HttpGet("GetUpVotes/{commentId:int}")]
+        public async Task<IActionResult> GetUpVotes(int commentId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var votes = await _commentService.GetUpVotes(commentId);
+            if (!votes[0].State.Flag)
+                return BadRequest(votes[0].State.Message);
+            return Ok(votes);
+
+        }
+        [Authorize]
+        [HttpGet("GetDownVotes/{commentId:int}")]
+        public async Task<IActionResult> GetDownVotes(int commentId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var votes = await _commentService.GetDownVotes(commentId);
+            if (!votes[0].State.Flag)
+                return BadRequest(votes[0].State.Message);
+            return Ok(votes);
+
+        }
+        [Authorize]
+        [HttpPost("Vote")]
+        public async Task<IActionResult> Vote(int commentId, int vote)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            string userId = await getLogginUserId();
+            StateDto state = await _commentService.Vote(commentId, vote);
+            if (!state.Flag)
+                return BadRequest(state.Message);
+            return Ok(state);
+        }
+        private async Task<string> getLogginUserId()
+        {
+
+            string id = HttpContext.User.FindFirstValue("uid") ?? "NA";
+            return id;
         }
     }
 }

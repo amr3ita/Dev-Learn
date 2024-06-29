@@ -1,5 +1,6 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Services.PostService.AuthService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Code_Road.Controllers
@@ -15,17 +16,43 @@ namespace Code_Road.Controllers
             _authService = authService;
         }
 
+        // [Authorize(Roles = "Admin")]
+        [HttpGet("GetAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _authService.GetAllUsers();
+
+            return Ok(users);
+        }
+
         [HttpPost("Register")]
         public async Task<IActionResult> RegisterAsync([FromBody] SignUpDto model)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            AuthDto user = await _authService.RegisterAsync(model);
+            AuthDto user = await _authService.RegisterAsync(model, Request.Scheme);
+
             if (!user.Status.Flag)
                 return BadRequest(user.Status.Message);
 
             return Ok(user);
+        }
+
+        [HttpGet("verifyemail")]
+        [ApiExplorerSettings(IgnoreApi = true)]
+        public async Task<IActionResult> VerifyEmail(string userId, string token)
+        {
+            var result = await _authService.VerifyEmail(userId, token);
+            if (result.Succeeded)
+            {
+                return Ok("Email verified successfully");
+            }
+            else
+            {
+                // Handle email verification failure
+                return BadRequest("Email verification failed");
+            }
         }
 
         [HttpPost("Login")]
@@ -51,6 +78,98 @@ namespace Code_Road.Controllers
                 return BadRequest(state.Message);
 
             return Ok(state.Message);
+        }
+
+        [Authorize]
+        [HttpPut("UpdateName")]
+        public async Task<IActionResult> UpdateName(string FirstName, string LastName)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            StateDto status = await _authService.UpdateName(FirstName, LastName);
+            if (!status.Flag)
+                return BadRequest(status.Message);
+            return Ok(status.Message);
+
+        }
+        [Authorize]
+        [HttpPut("UpdateUSerName")]
+        public async Task<IActionResult> UpdateUserName(string userName)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            StateDto status = await _authService.UpdateUserName(userName);
+            if (!status.Flag)
+                return BadRequest(status.Message);
+            return Ok(status.Message);
+
+        }
+
+        [HttpPut("UpdatePassword")]
+        public async Task<IActionResult> UpdatePasswordAsync(UpdatePasswordDto model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (!model.OldPassword.Equals(model.NewPassword))
+                {
+                    StateDto status = await _authService.UpdatePassword(model);
+                    if (status.Flag)
+                        return Ok(status.Message);
+                    return BadRequest(status.Message);
+                }
+                return BadRequest("Old Password and New Password Should be Different");
+            }
+            return BadRequest(ModelState);
+        }
+
+        [HttpDelete("AdminDeleteUser")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteUserAsync(string userEmail)
+        {
+
+            if (ModelState.IsValid)
+            {
+                StateDto status = await _authService.DeleteUser(userEmail);
+                if (status.Flag)
+                    return Ok(new { Message = status.Message });
+                return BadRequest(status.Message);
+            }
+            return BadRequest(ModelState);
+        }
+        [HttpDelete("DeleteUser")]
+        [Authorize]
+        public async Task<IActionResult> DeleteUserAccountAsync()
+        {
+
+            if (ModelState.IsValid)
+            {
+                StateDto status = await _authService.DeleteUserAccount();
+                if (status.Flag)
+                    return Ok(new { Message = status.Message });
+                return BadRequest(status.Message);
+            }
+            return BadRequest(ModelState);
+        }
+
+        [HttpGet("GetCurrentUser")]
+        [Authorize]
+        public async Task<IActionResult> GetCurrentUser()
+        {
+            try
+            {
+                var user = await _authService.GetCurrentUserAsync();
+                //return Ok(new { Name = $"{user.FirstName + " " + user.LastName}", Email = user.Email });
+                return Ok(user);
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
         }
     }
 }

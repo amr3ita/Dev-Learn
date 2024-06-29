@@ -1,6 +1,7 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Post;
 using Code_Road.Models;
+using Code_Road.Services.UserService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,16 +10,18 @@ namespace Code_Road.Services.PostService
     public class PostService : IPostService
     {
         private readonly AppDbContext _context;
+        private readonly IUserService _userService;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpContextAccessor _httpContextAccessor;
-        public PostService(AppDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor)
+        public PostService(AppDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             _context = context;
             _context.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
             _userManager = userManager;
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
+            _userService = userService;
         }
 
 
@@ -112,7 +115,9 @@ namespace Code_Road.Services.PostService
                     Message = "Sucsses"
                 },
                 PostId = post.Id,
+                UserId = post.UserId,
                 UserName = post.User.FirstName + " " + post.User.LastName,
+                UserImage = await _userService.GetUserImage(post.UserId),
                 Content = post.Content,
                 Up = post.Up,
                 Down = post.Down,
@@ -200,7 +205,12 @@ namespace Code_Road.Services.PostService
                 _context.Image.RemoveRange(images);
                 old_post.Images = await GetImagePath(postModel.Images, user.UserName, old_post.Id, old_post.UserId);
             }
+<<<<<<< HEAD
              _context.Posts.Update(old_post);
+=======
+            _context.Posts.Update(old_post);
+            //old_post.Content =postModel.Content;
+>>>>>>> master
             await _context.SaveChangesAsync();
          //   Console.WriteLine($"After operation {old_post.Content}");
 
