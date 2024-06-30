@@ -1,6 +1,7 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Lesson;
 using Code_Road.Models;
+using Code_Road.Services.PostService.AuthService;
 using Code_Road.Services.QuizService;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,13 +13,15 @@ namespace Code_Road.Services.LessonService
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IQuizService _quizService;
+        private readonly IAuthService _authService;
 
-        public LessonService(AppDbContext context, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IQuizService quizService)
+        public LessonService(AppDbContext context, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IQuizService quizService, IAuthService authService)
         {
             _context = context;
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
             _quizService = quizService;
+            _authService = authService;
         }
 
         #region Public Section
@@ -54,6 +57,7 @@ namespace Code_Road.Services.LessonService
             }
             return new LessonDto()
             {
+
                 Explanation = lesson.Explanation,
                 Name = lesson.Name,
                 Level = lesson.Level,
@@ -86,6 +90,35 @@ namespace Code_Road.Services.LessonService
                 State = state
             };
         }
+        public async Task<List<LessonDto>> GetLessonAddedByUser(string userId)
+        {
+            List<Lesson>? lessons = await _context.Lessons.Include(t => t.topic).Where(t => t.ApplicationUserId == userId).ToListAsync();
+            StateDto state = new StateDto() { Flag = true, Message = "every thing go well" };
+            List<LessonDto> returnedLessons = new List<LessonDto>();
+            if (lessons.Count == 0)
+            {
+                state.Flag = false;
+                state.Message = "there is no Lesson added by this user";
+                returnedLessons.Add(new LessonDto() { State = state });
+                return returnedLessons;
+            }
+            state.Flag = true;
+            state.Message = "done";
+            foreach (var lesson in lessons)
+            {
+                returnedLessons.Add(new LessonDto()
+                {
+                    Explanation = lesson.Explanation,
+                    Name = lesson.Name,
+                    Level = lesson.Level,
+                    Topic = lesson.topic.Name,
+                    Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
+                    //QuizId = lesson.Quiz.Id,
+                    State = state
+                });
+            }
+            return returnedLessons;
+        }
         public async Task<LessonDto> AddLesson(AddLessonDto model)
         {
             StateDto state = new StateDto() { Flag = false };
@@ -107,7 +140,7 @@ namespace Code_Road.Services.LessonService
             lesson.Explanation = model.Explanation;
             lesson.Level = model.Level;
             lesson.TopicId = topic.Id;
-
+            lesson.ApplicationUserId = (await _authService.GetCurrentUserAsync()).userInfo.Id;
             state.Message = "This user is not found";
 
             await _context.Lessons.AddAsync(lesson);

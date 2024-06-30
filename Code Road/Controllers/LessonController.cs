@@ -40,6 +40,14 @@ namespace Code_Road.Controllers
                 return BadRequest(lesson.State.Message);
             return Ok(lesson);
         }
+        [HttpGet("GetLessonsByUser")]
+        public async Task<IActionResult> GetLessonByUser(string userId)
+        {
+            var lesson = await _lessonService.GetLessonAddedByUser(userId);
+            if (!lesson[0].State.Flag)
+                return BadRequest(lesson[0].State.Message);
+            return Ok(lesson);
+        }
         [HttpPost("AddLesson")]
         [Authorize(Roles = "Admin")]
 

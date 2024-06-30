@@ -8,6 +8,7 @@ namespace Code_Road.Services.LessonService
         Task<List<LessonDetailsDto>> GetAllLessons();
         Task<LessonDto> GetLessonById(int id);
         Task<LessonDto> GetLessonByName(string name);
+        Task<List<LessonDto>> GetLessonAddedByUser(string userId);
         Task<LessonDto> AddLesson(AddLessonDto model);
         Task<LessonDto> UpdateLessonById(int id, EditLessonDto model);
         Task<StateDto> DeleteLesson(int id);
