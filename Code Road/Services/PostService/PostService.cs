@@ -28,38 +28,40 @@ namespace Code_Road.Services.PostService
 
         }
 
-        public async Task<List<PostDto>> GetAllAsync()
+        public async Task<List<PostAndCommentsDto>> GetAllAsync()
         {
-            var today = DateTime.Today;
+            //var today = DateTime.Today;
 
-            var posts = await _context.Posts
-                .Include(p => p.Images)
-                .Include(p => p.User)
-                .Select(p => new PostDto
-                {
-                    Status = new StateDto { Flag = true, Message = "Success" },
-                    PostId = p.Id,
-                    UserId = p.UserId,
-                    UserName = p.User.FirstName + " " + p.User.LastName,
-                    Content = p.Content,
-                    Up = p.Up,
-                    Down = p.Down,
-                    Date = p.Date,
-                    Image_url = p.Images.Where(i => (i.UserId == p.User.Id) && i.PostId == p.Id).Select(i => i.ImageUrl).ToList()
-                })
-                .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
-                .ThenByDescending(p => p.Date.Date) // Then by date
-                .ThenByDescending(p => p.Up) // Then by Up property
-                .ToListAsync();
-
+            //var posts = await _context.Posts
+            //    .Include(p => p.Images)
+            //    .Include(p => p.User)
+            //    .Select(p => new PostDto
+            //    {
+            //        Status = new StateDto { Flag = true, Message = "Success" },
+            //        PostId = p.Id,
+            //        UserId = p.UserId,
+            //        UserName = p.User.FirstName + " " + p.User.LastName,
+            //        Content = p.Content,
+            //        Up = p.Up,
+            //        Down = p.Down,
+            //        Date = p.Date,
+            //        Image_url = p.Images.Where(i => (i.UserId == p.User.Id) && i.PostId == p.Id).Select(i => i.ImageUrl).ToList()
+            //    })
+            //    .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
+            //    .ThenByDescending(p => p.Date.Date) // Then by date
+            //    .ThenByDescending(p => p.Up) // Then by Up property
+            //    .ToListAsync();
+            var postsIds = _context.Posts.Select(p => p.Id).ToList();
+            List<PostAndCommentsDto> posts = new List<PostAndCommentsDto>();
             //Posts Not Found
-            if (posts is null)
+            if (postsIds is null)
             {
                 return null;
             }
-            foreach (var post in posts)
+            foreach (var post in postsIds)
             {
-                post.UserImage = await _userService.GetUserImage(post.UserId);
+                posts.Add(await GetByIdAsync(post));
+                //  post.UserImage = await _userService.GetUserImage(post.UserId);
             }
             return posts;
         }
