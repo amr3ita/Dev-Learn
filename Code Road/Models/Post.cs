@@ -14,5 +14,6 @@ namespace Code_Road.Models
         public virtual List<Image> Images { get; set; }
         public virtual List<Comment> comments { get; set; }
         public virtual ApplicationUser User { get; set; }
+        public virtual List<PostVote>? PostVotes { get; set; }
     }
 }

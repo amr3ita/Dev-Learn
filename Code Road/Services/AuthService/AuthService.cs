@@ -1,9 +1,12 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Account.Enum;
+using Code_Road.Dto.Comment;
+using Code_Road.Dto.Post;
 using Code_Road.Helpers;
 using Code_Road.Models;
 using Code_Road.Services.EmailService;
 using Code_Road.Services.UserService;
+using Code_Road.Services.VotesService;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -26,8 +29,9 @@ namespace Code_Road.Services.PostService.AuthService
         private readonly IUserService _userService;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IPostService _postService;
+        private readonly IVoteService _voteService;
 
-        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IPostService postService)
+        public AuthService(AppDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IOptions<JWT> Jwt, IEmailService emailService, UrlHelperFactoryService urlHelperFactoryService, IUserService userService, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IPostService postService, IVoteService voteService)
 
         {
             _context = context;
@@ -40,6 +44,7 @@ namespace Code_Road.Services.PostService.AuthService
             _userService = userService;
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
             _postService = postService;
+            _voteService = voteService;
         }
 
         // Get All Users
@@ -408,21 +413,6 @@ namespace Code_Road.Services.PostService.AuthService
                 status.Message = "Login first";
                 return status;
             }
-            //var user = await _userManager.FindByEmailAsync(userEmail);
-            //if (user == null)
-            //{
-            //    status.Flag = false;
-            //    status.Message = "User Email Incorrect";
-            //    return status;
-            //}
-
-            //bool isAdmin = await _userManager.IsInRoleAsync(currentUser, "Admin");
-            //if (!isAdmin)
-            //{
-            //    status.Flag = false;
-            //    status.Message = "You don't have permission to delete user";
-            //    return status;
-            //}
 
             try
             {
@@ -506,6 +496,17 @@ namespace Code_Road.Services.PostService.AuthService
 
             // get the image of this user
             user.userImage = await _userService.GetUserImage(user.userInfo.Id);
+
+            // get list user Votes
+            var userPosts = await _voteService.UserPostVotes(user.userInfo.Id);
+            var userComments = await _voteService.UserCommentVotes(user.userInfo.Id);
+
+            user.UserVotes = new UserVotesDto
+            {
+                PostVotesId = new UserPostVotesDto { Status = new StateDto { Flag = true, Message = $"there is {userPosts.UpPosts.Count} up post and {userPosts.DownPosts.Count} down post" }, UpPosts = userPosts.UpPosts, DownPosts = userPosts.DownPosts },
+                CommentVotesId = new UserCommentVotesDto { Status = new StateDto { Flag = true, Message = $"there is {userComments.UpComments.Count} up comment and {userComments.DownComments.Count} down comment" }, UpComments = userComments.UpComments, DownComments = userComments.DownComments }
+            };
+
 
             if (user is null)
                 return null;

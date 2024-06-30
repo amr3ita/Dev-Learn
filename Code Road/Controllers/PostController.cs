@@ -1,6 +1,8 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Post;
 using Code_Road.Services.PostService;
+using Code_Road.Services.VotesService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Code_Road.Controllers
@@ -10,9 +12,12 @@ namespace Code_Road.Controllers
     public class PostController : ControllerBase
     {
         private readonly IPostService _postService;
-        public PostController(IPostService postService)
+        private readonly IVoteService _voteService;
+
+        public PostController(IPostService postService, IVoteService voteService)
         {
             _postService = postService;
+            _voteService = voteService;
         }
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -123,6 +128,19 @@ namespace Code_Road.Controllers
             }
             return BadRequest(result.Message);
         }
+
+        [Authorize]
+        [HttpPost("Vote")]
+        public async Task<IActionResult> Vote(int postId, int vote)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            StateDto state = await _voteService.PostVote(postId, vote);
+            if (!state.Flag)
+                return BadRequest(state.Message);
+            return Ok(state);
+        }
+
         #endregion
 
 

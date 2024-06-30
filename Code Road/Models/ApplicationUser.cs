@@ -9,8 +9,10 @@ namespace Code_Road.Models
         public DateTime ActiceDay { get; set; }
         public int OnlineDays { get; set; }
 
-        public List<Post>? Posts { get; set; }
         public Image Image { get; set; }
+        public List<Post>? Posts { get; set; }
+        public List<CommentVote>? Comment_Votes { get; set; }
+        public List<PostVote>? Post_Votes { get; set; }
 
     }
 }

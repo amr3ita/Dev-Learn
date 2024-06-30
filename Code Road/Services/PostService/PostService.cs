@@ -16,7 +16,6 @@ namespace Code_Road.Services.PostService
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-
         public PostService(AppDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             _context = context;
@@ -25,7 +24,6 @@ namespace Code_Road.Services.PostService
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
             _userService = userService;
-
         }
 
         public async Task<List<PostAndCommentsDto>> GetAllAsync()
@@ -45,12 +43,6 @@ namespace Code_Road.Services.PostService
             return posts;
         }
 
-
-        /// <summary>
-        /// get All posts for  one user 
-        /// </summary>
-        /// <param name="user_id"></param>
-        /// <returns></returns>
         public async Task<List<PostDto>> GetAllByUserIdAsync(string user_id)
         {
             if (await _userManager.FindByIdAsync(user_id) is null)
@@ -241,7 +233,6 @@ namespace Code_Road.Services.PostService
             return new StateDto { Flag = false, Message = "not found" };
         }
 
-
         private async Task<bool> DeletImage(int post_id)
         {
             try
@@ -260,6 +251,7 @@ namespace Code_Road.Services.PostService
                 return false;
             }
         }
+
         private async Task<List<Image>> GetImagePath(IFormFileCollection formFileCollection, string userName, int postId, string user_id)
         {
             int counter = 0;
@@ -295,11 +287,11 @@ namespace Code_Road.Services.PostService
             }
             return imageReturnd;
         }
+
         private async Task<string> getFilePath(int post_id)
         {
             return _environment.WebRootPath + "\\Upload\\Post\\" + post_id;
         }
-
 
         private Task<StateDto> ValidatePostModel(AddPostDto postModel)
         {
@@ -398,7 +390,6 @@ namespace Code_Road.Services.PostService
         }
 
         #endregion
-
 
     }
 }

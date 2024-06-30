@@ -9,6 +9,7 @@ using Code_Road.Services.QuestionService;
 using Code_Road.Services.QuizService;
 using Code_Road.Services.TopicService;
 using Code_Road.Services.UserService;
+using Code_Road.Services.VotesService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Routing;
@@ -32,8 +33,8 @@ namespace Code_Road
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
-            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IEmailService, EmailService>();
             builder.Services.AddSingleton<IUrlHelperFactory, UrlHelperFactory>();
             builder.Services.AddScoped<ICommentService, CommentService>();
@@ -43,6 +44,7 @@ namespace Code_Road
             builder.Services.AddScoped<ITopicService, TopicService>();
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IPostService, PostService>();
+            builder.Services.AddScoped<IVoteService, VoteService>();
 
             //builder.Services.AddLogging();
 

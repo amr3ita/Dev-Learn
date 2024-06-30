@@ -15,6 +15,7 @@ namespace Code_Road.Models
         public DbSet<Follow> Follow { get; set; }
         public DbSet<FinishedLessons> FinishedLessons { get; set; }
         public DbSet<CommentVote> Comments_Vote { get; set; }
+        public DbSet<PostVote> Posts_Vote { get; set; }
 
         public AppDbContext()
         {

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Code_Road.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240627142419_commentVote")]
-    partial class commentVote
+    [Migration("20240630171445_add Comment and Post Vote Tables")]
+    partial class addCommentandPostVoteTables
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -173,7 +173,7 @@ namespace Code_Road.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Comments_Vote");
+                    b.ToTable("Posts_Vote");
                 });
 
             modelBuilder.Entity("Code_Road.Models.FinishedLessons", b =>
@@ -304,6 +304,41 @@ namespace Code_Road.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Code_Road.Models.PostVote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Vote")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Posts_Vote");
                 });
 
             modelBuilder.Entity("Code_Road.Models.Question", b =>
@@ -549,7 +584,7 @@ namespace Code_Road.Migrations
                         .IsRequired();
 
                     b.HasOne("Code_Road.Models.ApplicationUser", "User")
-                        .WithMany()
+                        .WithMany("Comment_Votes")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -640,6 +675,25 @@ namespace Code_Road.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Code_Road.Models.PostVote", b =>
+                {
+                    b.HasOne("Code_Road.Models.Post", "Post")
+                        .WithMany("PostVotes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Code_Road.Models.ApplicationUser", "User")
+                        .WithMany("Post_Votes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Code_Road.Models.Question", b =>
                 {
                     b.HasOne("Code_Road.Models.Quiz", "Quiz")
@@ -715,8 +769,12 @@ namespace Code_Road.Migrations
 
             modelBuilder.Entity("Code_Road.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Comment_Votes");
+
                     b.Navigation("Image")
                         .IsRequired();
+
+                    b.Navigation("Post_Votes");
 
                     b.Navigation("Posts");
                 });
@@ -737,6 +795,8 @@ namespace Code_Road.Migrations
             modelBuilder.Entity("Code_Road.Models.Post", b =>
                 {
                     b.Navigation("Images");
+
+                    b.Navigation("PostVotes");
 
                     b.Navigation("comments");
                 });

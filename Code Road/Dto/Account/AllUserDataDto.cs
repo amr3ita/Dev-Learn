@@ -11,5 +11,6 @@ namespace Code_Road.Dto.Account
         public List<PostDto>? posts { get; set; }
         public List<FinishedLessonDetailsDto>? finishedLessons { get; set; }
         public string? userImage { get; set; }
+        public UserVotesDto UserVotes { get; set; }
     }
 }

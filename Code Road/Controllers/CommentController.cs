@@ -1,6 +1,7 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Comment;
 using Code_Road.Services.CommentService;
+using Code_Road.Services.VotesService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -12,10 +13,12 @@ namespace Code_Road.Controllers
     public class CommentController : ControllerBase
     {
         private readonly ICommentService _commentService;
+        private readonly IVoteService _voteService;
 
-        public CommentController(ICommentService commentService)
+        public CommentController(ICommentService commentService, IVoteService voteService)
         {
             _commentService = commentService;
+            _voteService = voteService;
         }
         [HttpGet("CommentsForPost/{postId:int}")]
         public async Task<IActionResult> GetComments(int postId)
@@ -97,8 +100,7 @@ namespace Code_Road.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            string userId = await getLogginUserId();
-            StateDto state = await _commentService.Vote(commentId, vote);
+            StateDto state = await _voteService.CommentVote(commentId, vote);
             if (!state.Flag)
                 return BadRequest(state.Message);
             return Ok(state);

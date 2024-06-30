@@ -13,6 +13,5 @@ namespace Code_Road.Services.CommentService
         Task<StateDto> AddComment(int postId, string Content);
         Task<List<UsersReactDto>> GetUpVotes(int commentId);
         Task<List<UsersReactDto>> GetDownVotes(int commentId);
-        Task<StateDto> Vote(int commentId, int vote);
     }
 }
