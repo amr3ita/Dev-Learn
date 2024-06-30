@@ -118,8 +118,8 @@ namespace Code_Road.Services.VotesService
             else
             {
                 userPostVotes.Status = new StateDto { Flag = false, Message = "user doesn't vote any post" };
-                userPostVotes.UpPosts = null;
-                userPostVotes.DownPosts = null;
+                userPostVotes.UpPosts = new List<int>();
+                userPostVotes.DownPosts = new List<int>();
             }
             return userPostVotes;
         }
@@ -209,8 +209,8 @@ namespace Code_Road.Services.VotesService
             else
             {
                 userPostVotes.Status = new StateDto { Flag = false, Message = "user doesn't vote any comment" };
-                userPostVotes.UpComments = null;
-                userPostVotes.DownComments = null;
+                userPostVotes.UpComments = new List<int>();
+                userPostVotes.DownComments = new List<int>();
             }
             return userPostVotes;
         }
