@@ -67,7 +67,7 @@ namespace Code_Road.Controllers
                 return BadRequest(state.Message);
             return Ok(state);
         }
-        [Authorize]
+        //[Authorize]
         [HttpGet("GetUpVotes/{commentId:int}")]
         public async Task<IActionResult> GetUpVotes(int commentId)
         {
@@ -79,7 +79,7 @@ namespace Code_Road.Controllers
             return Ok(votes);
 
         }
-        [Authorize]
+        // [Authorize]
         [HttpGet("GetDownVotes/{commentId:int}")]
         public async Task<IActionResult> GetDownVotes(int commentId)
         {
