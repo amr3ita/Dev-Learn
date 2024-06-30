@@ -14,6 +14,7 @@ namespace Code_Road.Services.PostService
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpContextAccessor _httpContextAccessor;
+
         public PostService(AppDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             _context = context;
@@ -23,7 +24,6 @@ namespace Code_Road.Services.PostService
             _httpContextAccessor = httpContextAccessor;
             _userService = userService;
         }
-
 
         public async Task<List<PostDto>> GetAllAsync()
         {
@@ -46,7 +46,7 @@ namespace Code_Road.Services.PostService
                 .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
                 .ThenByDescending(p => p.Date.Date) // Then by date
                 .ThenByDescending(p => p.Up) // Then by Up property
-            .ToListAsync();
+                .ToListAsync();
 
             //Posts Not Found
             if (posts is null)
@@ -126,8 +126,6 @@ namespace Code_Road.Services.PostService
             };
             return postDto;
         }
-
-
 
         public async Task<PostDto> AddPostAsync(AddPostDto postModel)
         {

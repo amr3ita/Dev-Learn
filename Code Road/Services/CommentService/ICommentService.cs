@@ -8,6 +8,7 @@ namespace Code_Road.Services.CommentService
     {
         Task<List<CommentDto>> GetComments(int PostId);
         Task<CommentDto> EditComment(int commentId, string userId, EditDto model);
+        Task<CommentDto> GetCommentById(int id, string userId);
         Task<StateDto> DeleteComment(int commentId, int postId, string userId);
         Task<StateDto> AddComment(int postId, string Content);
         Task<List<UsersReactDto>> GetUpVotes(int commentId);

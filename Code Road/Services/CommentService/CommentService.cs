@@ -78,7 +78,7 @@ namespace Code_Road.Services.CommentService
             return await GetCommentById(comment.Id, userId);
 
         }
-        private async Task<CommentDto> GetCommentById(int id, string userId)
+        public async Task<CommentDto> GetCommentById(int id, string userId)
         {
             Comment? comment = await _context.Comments.SingleOrDefaultAsync(c => c.Id == id);
             StateDto state = new StateDto() { Flag = false, Message = "there is no comment with this id" };

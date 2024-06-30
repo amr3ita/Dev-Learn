@@ -1,0 +1,517 @@
+[33mcommit 7af9fb071b9b74763915213a2a9e7daf762ac11e[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Merge: bc6b142 ee5e168
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Sat Jun 29 01:28:57 2024 +0300
+
+    Merge pull request #20 from amr3ita/kemo
+    
+    update Post
+
+[33mcommit ee5e168223a66bc72060201682ded4f2bc964200[m[33m ([m[1;31morigin/kemo[m[33m)[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Sat Jun 29 01:28:12 2024 +0300
+
+    update Post
+
+[33mcommit bc6b1423cb7507fb8ac6551fe1a40536ea36495b[m
+Merge: 3078722 54a8756
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Fri Jun 28 17:30:39 2024 +0300
+
+    Merge pull request #19 from amr3ita/kemo
+    
+    user delete him self
+
+[33mcommit 54a8756140eebd9076ea64c7cb2eb17c57ad27b5[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Fri Jun 28 17:29:23 2024 +0300
+
+    user delete him self
+
+[33mcommit 3078722588b101c05864e2744d7ef21af94d8066[m
+Merge: 57e6801 9851d81
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Fri Jun 28 14:12:36 2024 +0300
+
+    Merge pull request #18 from amr3ita/kemo
+    
+    update userName
+
+[33mcommit 9851d81b83a39d197450f6678821310ea21083d8[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Fri Jun 28 14:11:42 2024 +0300
+
+    update userName
+
+[33mcommit 57e680116ec95bfd4bf37a8d379401f493792866[m
+Merge: 45d0775 3fa473d
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Fri Jun 28 11:25:57 2024 +0300
+
+    Merge pull request #17 from amr3ita/kemo
+    
+    Edit post , hamasa and add update userName
+
+[33mcommit 3fa473dfdcbe1ad7a2176bb5a9720f693ea7a641[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Fri Jun 28 11:25:14 2024 +0300
+
+    Edit post , hamasa and add update userName
+
+[33mcommit 45d077534afda8371eec0cef212110d2d2f1e6b8[m
+Merge: 30d5d5b 9ced3b6
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Thu Jun 27 21:01:48 2024 +0300
+
+    Merge pull request #16 from amr3ita/kemo
+    
+    Edit comment and hamasa
+
+[33mcommit 9ced3b600876709b55e34285220063231f11337f[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu Jun 27 21:01:05 2024 +0300
+
+    Edit comment and hamasa
+
+[33mcommit 30d5d5bf92748d1e0c46b1ef94e0e0bfcbaa72b3[m
+Merge: 3c7ee5e 3a4ecda
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Thu Jun 27 13:58:51 2024 +0300
+
+    Merge pull request #15 from amr3ita/kemo
+    
+    Edit LessonDetailsDto
+
+[33mcommit 3a4ecdaceb271adf96dd570d7a3beb09c7c47d74[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu Jun 27 13:57:59 2024 +0300
+
+    Edit LessonDetailsDto
+
+[33mcommit 3c7ee5ec158ea18e799435e406f1ccaa95180e26[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Thu Jun 27 03:24:48 2024 +0300
+
+    update user details and name of user
+
+[33mcommit 96ff30cb3e6f47e7830ee157aaa929da99b1492e[m
+Merge: 017bfa3 5755d45
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Wed Jun 26 22:07:31 2024 +0300
+
+    update delete user
+
+[33mcommit 017bfa3164b9090ad6c2b8f291a7e6b48de62bdb[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Wed Jun 26 22:01:25 2024 +0300
+
+    update delete user v2
+
+[33mcommit 13cfade4206c06e51f9f4e71cae81148727d4db3[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Wed Jun 26 22:00:41 2024 +0300
+
+    update delete user
+
+[33mcommit 5755d4517ea731f09eed21758a07090181dfae2c[m
+Merge: 2400d29 2a0c512
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Wed Jun 26 11:39:04 2024 +0300
+
+    Merge pull request #14 from amr3ita/kemo
+    
+    UserImages
+
+[33mcommit 2a0c5121de7d503131c1541edb99f8a42600e01e[m
+Merge: d24cbb9 2400d29
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Wed Jun 26 11:37:57 2024 +0300
+
+    Resolve merge
+
+[33mcommit d24cbb9e64642b83100e22f8e50314941859a3f1[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Wed Jun 26 11:28:13 2024 +0300
+
+    UserImages
+
+[33mcommit 2400d29d27f14906b120eecb4b3664ccd108a2e4[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Wed Jun 26 04:11:27 2024 +0300
+
+    update deleteUser
+
+[33mcommit d30a696673f2bdf8e585f8b0552705c6c710b3aa[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Tue Jun 25 20:55:07 2024 +0300
+
+    update
+
+[33mcommit 7d3fdc4d55fb9f2a70143aeead963ad89423dd47[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Jun 24 14:19:34 2024 +0300
+
+    Add CORS Policy
+
+[33mcommit f8c26d36946b0a7f6bc857a3f04455085da4def4[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Jun 24 14:16:24 2024 +0300
+
+    Add CORS Policy
+
+[33mcommit fe010a1a1b18997b4d11912233860c5fa9fb7e66[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Jun 24 05:12:48 2024 +0300
+
+    Verify Email
+
+[33mcommit de7620c6d3122c600f854830e517fcf014b08b0e[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Jun 24 00:42:44 2024 +0300
+
+    verify Email
+
+[33mcommit ef8603264a9ac1177c1001a61c8f4a97690ed8b5[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Jun 24 00:40:14 2024 +0300
+
+    Verify Email
+
+[33mcommit 1eab6eb45f02a18d9b0854cf787cd530411e3514[m
+Merge: 488dff8 7321f4c
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Sun Jun 23 21:05:28 2024 +0300
+
+    Merge pull request #13 from amr3ita/kemo
+    
+    LoginUserIdP2
+
+[33mcommit 7321f4c4544e239dd3ad2a54bdf4b657279020e3[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Sun Jun 23 21:00:22 2024 +0300
+
+    LoginUserIdP2
+
+[33mcommit 488dff85a499d15f2dc8eec384b343d06d06dced[m
+Merge: 77ac491 d1903e0
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Sun Jun 23 18:37:44 2024 +0300
+
+    Merge pull request #12 from amr3ita/kemo
+    
+    FinishedLessonsAndLoginUserId
+
+[33mcommit d1903e06680d52fdb31f390e33ac965dd6579275[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Sun Jun 23 18:34:54 2024 +0300
+
+    FinishedLessonsAndLoginUserId
+
+[33mcommit 77ac491d42d73cefe4648c26f5973e70a2de5097[m
+Merge: 665914f 94f9e7c
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Thu May 23 13:29:37 2024 +0300
+
+    Merge pull request #11 from amr3ita/kemo
+    
+    comment
+
+[33mcommit 94f9e7c803bd28e2361d985210c8b226b4c3df99[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu May 23 13:27:46 2024 +0300
+
+    comment
+
+[33mcommit 665914fef9359ee97386f1b8c4902c2aae43116f[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Thu May 23 13:20:57 2024 +0300
+
+    modifyy
+
+[33mcommit fb39af7f41c3b3c9751507e39406f5a194d3730c[m
+Merge: db1e2b3 4970ca6
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Thu May 23 13:16:43 2024 +0300
+
+    Merge pull request #10 from amr3ita/Kemo
+    
+    Kemo
+
+[33mcommit 4970ca642be222eda88f7abace80c28983ec9e30[m
+Merge: 6a68b30 db1e2b3
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Thu May 23 13:16:08 2024 +0300
+
+    Merge branch 'master' into Kemo
+
+[33mcommit 6a68b308517e3c9b82cc814e4d96dfa95c49e13f[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu May 23 13:08:47 2024 +0300
+
+    test1Program.cs
+
+[33mcommit 17785b173d8abb68e8621049eee0e71deac1d5eb[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu May 23 12:58:58 2024 +0300
+
+    testProgram.cs
+
+[33mcommit db1e2b37fc948135da400f224b3dee4efa83cfde[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Thu May 23 12:42:47 2024 +0300
+
+    modify
+
+[33mcommit 5034d52a853eca6a30dca30b2788bcf8a5410853[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Thu May 23 12:32:40 2024 +0300
+
+    modify
+
+[33mcommit 26401040b6219e55d455a7b9b0a18362bc69ec9d[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu May 23 12:27:29 2024 +0300
+
+    Editprogram.cs
+
+[33mcommit 201f6a9b9e156e913bc65583ee10e1b8961cf338[m
+Merge: 3f08ea3 db24663
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Thu May 23 12:05:50 2024 +0300
+
+    Merge pull request #8 from amr3ita/Kemo
+    
+    Kemo
+
+[33mcommit db246634e6783daa180e8d8a3eb4513710a46063[m
+Merge: 45d7dc1 7ed6ebb
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu May 23 12:03:54 2024 +0300
+
+    merged done
+
+[33mcommit 45d7dc1fe42a80b281ccfcaf39817ea431023986[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Thu May 23 11:54:29 2024 +0300
+
+    editFollow
+
+[33mcommit f72f351ae1f8e2fcc73ae08b6863b857101e5cc4[m
+Merge: 571a86f 84e3437
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Wed May 22 14:59:49 2024 +0300
+
+    auth
+
+[33mcommit 3f08ea35deede99bdee7879f5f8dc67371ba0999[m
+Merge: e372c71 7ed6ebb
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Wed May 22 14:22:43 2024 +0300
+
+    Merge pull request #7 from amr3ita/Kemo
+    
+    addFollow
+
+[33mcommit 7ed6ebb1a12dd2706f07a60b7a4448b732fd1b25[m
+Merge: 571a86f e372c71
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Wed May 22 14:22:33 2024 +0300
+
+    Merge branch 'master' into Kemo
+
+[33mcommit 571a86f7d8d0c6d4ddb024e1e784ddb53867240a[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Wed May 22 14:11:17 2024 +0300
+
+    addFollow
+
+[33mcommit e372c71e09365ff8fed942eb337e81f6ac5ec077[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Apr 29 06:26:39 2024 +0300
+
+    GetAllUsers
+
+[33mcommit 56b0d99a2ed6b20656a40ba92e2bae377f17a3bc[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Sun Apr 28 02:28:43 2024 +0300
+
+    empty lines
+
+[33mcommit 84e343754858463e286c22b44c8283b9459715a2[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Tue Apr 16 01:44:15 2024 +0200
+
+    Update AuthService
+
+[33mcommit 80749c1a7a51b96abeafe902012fd424c8939442[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Apr 15 19:30:12 2024 +0200
+
+    updatePassword and DeleteUser
+
+[33mcommit f384981885811fca2c108b770caae66213c9683a[m
+Merge: 6e262fc c24338d
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Fri Apr 5 12:40:33 2024 +0200
+
+    Nothing
+
+[33mcommit 6e262fc5c1a9049d8966536868ed806bb1b8704b[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Fri Apr 5 12:38:38 2024 +0200
+
+    Nothing
+
+[33mcommit c24338d8b401660db1f9b4f75a5839c3c93b8acd[m
+Merge: 84b2646 7e33cba
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Fri Apr 5 12:35:57 2024 +0200
+
+    Merge pull request #6 from amr3ita/EditLessonImage
+    
+    updateLesson
+
+[33mcommit 7e33cba9f42f0763c591fff51bec272c89e3a357[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Fri Apr 5 12:34:45 2024 +0200
+
+    updateLesson
+
+[33mcommit 84b2646ccbfdf88044bfb6a12d6964f92d5bcf5e[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Tue Apr 2 18:00:43 2024 +0200
+
+    update controllers names
+
+[33mcommit bf66c9fbfa6c31b8852e604eb76ed1d984a9128c[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Tue Apr 2 17:47:47 2024 +0200
+
+    add migration
+
+[33mcommit e2c3ef050beb79a07f56c8e5065f34b19e7e7185[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Apr 1 23:44:49 2024 +0200
+
+    update image table
+
+[33mcommit 6f9d4dcba3f24fa6442cd8cb977faeb85014777e[m
+Merge: 8633a50 e432a65
+Author: ziyad-alaa <117601333+ziyad-alaa@users.noreply.github.com>
+Date:   Mon Apr 1 23:36:12 2024 +0200
+
+    Merge pull request #5 from amr3ita/comment
+    
+    Add comment
+
+[33mcommit e432a656d2db484be449d49e1a292009c8ed9189[m
+Author: Your Name <you@example.com>
+Date:   Mon Apr 1 23:32:52 2024 +0200
+
+    Add comment
+
+[33mcommit 8633a50278c6303a453e1ccd396b679432d797ad[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Apr 1 23:14:14 2024 +0200
+
+    update
+
+[33mcommit 2288d9135ae189f47bbcb558b8cc805f08a9abea[m
+Merge: 27d2c56 ad55ccf
+Author: somaa59 <117392639+somaa59@users.noreply.github.com>
+Date:   Mon Apr 1 23:03:06 2024 +0200
+
+    Merge pull request #4 from amr3ita/AddPost
+    
+    add Post
+
+[33mcommit ad55ccfdfc713b3749555838e391b3d15f711ca8[m
+Author: Your Name <you@example.com>
+Date:   Mon Apr 1 23:00:05 2024 +0200
+
+    add Post
+
+[33mcommit 27d2c566d66d64b3394515d97c1ec3323a6e6815[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Mon Apr 1 22:29:37 2024 +0200
+
+    topicService
+
+[33mcommit 391ed5457daf268292243d046ca5d31f0b6a1965[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Thu Mar 7 01:51:16 2024 +0200
+
+    Update Lesson Service
+
+[33mcommit 1ebd400234d7a34737ffa5b90cd23bf3a9297701[m
+Merge: e7a6a28 4cec7ae
+Author: Amr Walied <76133331+amr3ita@users.noreply.github.com>
+Date:   Thu Mar 7 01:10:43 2024 +0200
+
+    Merge pull request #3 from amr3ita/revert-2-kemo
+    
+    Revert "Kemo"
+
+[33mcommit 4cec7ae8f4267777b502dafb77f491a83a6024f9[m
+Author: Amr Walied <76133331+amr3ita@users.noreply.github.com>
+Date:   Thu Mar 7 01:10:28 2024 +0200
+
+    Revert "Kemo"
+
+[33mcommit e7a6a28604c181908645ad9a6214d10fe2265604[m
+Merge: 13afc70 fbf57ca
+Author: kemo said <120644413+kemosaid@users.noreply.github.com>
+Date:   Thu Mar 7 00:59:11 2024 +0200
+
+    Merge pull request #2 from amr3ita/kemo
+    
+    Kemo
+
+[33mcommit fbf57caaa9e43b082b54ec1fcc9bb61b4560e212[m
+Merge: e929156 13afc70
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Wed Mar 6 21:36:24 2024 +0200
+
+    edit
+
+[33mcommit e9291567f68cfc188fced9924b3c41f271b008ce[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Wed Mar 6 21:33:32 2024 +0200
+
+    Edit Lesson
+
+[33mcommit 13afc7061b48123d70f21d53fdeb28d2b5c360cd[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Tue Mar 5 16:17:36 2024 +0200
+
+    last try
+
+[33mcommit 0874ee0138c503d2be05485cf0d63446f5263e03[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Tue Mar 5 15:46:36 2024 +0200
+
+    editDto
+
+[33mcommit 26aa35e70e44ed68d7317035ca91e73fc89b01ee[m
+Author: kemosaid <kemo01094209943@gmail.com>
+Date:   Tue Mar 5 15:40:27 2024 +0200
+
+    rabna yster
+
+[33mcommit 9a08d03c3c791bc6adc00e519f8208eaac765315[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Tue Mar 5 00:07:46 2024 +0200
+
+    Create CRUD Operations For Quiz
+
+[33mcommit 67ae3258377945dff1a9e147ed9587e0d78d498b[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Mon Mar 4 20:32:35 2024 +0200
+
+    Create CRUD Operations For Question
+
+[33mcommit 2952295d5c321e4b37b4acb2ff53f2e42aee62c0[m
+Author: amr3ita <amrwalied90@gmail.com>
+Date:   Wed Feb 28 19:49:57 2024 +0200
+
+    Add project files.

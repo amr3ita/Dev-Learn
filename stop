@@ -1,0 +1,64 @@
+[33m3c7ee5e[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m update user details and name of user
+[33m96ff30c[m update delete user
+[33m017bfa3[m update delete user v2
+[33m13cfade[m update delete user
+[33m5755d45[m Merge pull request #14 from amr3ita/kemo
+[33m2a0c512[m Resolve merge
+[33md24cbb9[m UserImages
+[33m2400d29[m update deleteUser
+[33md30a696[m update
+[33m7d3fdc4[m Add CORS Policy
+[33mf8c26d3[m Add CORS Policy
+[33mfe010a1[m Verify Email
+[33mde7620c[m verify Email
+[33mef86032[m Verify Email
+[33m1eab6eb[m Merge pull request #13 from amr3ita/kemo
+[33m7321f4c[m LoginUserIdP2
+[33m488dff8[m Merge pull request #12 from amr3ita/kemo
+[33md1903e0[m FinishedLessonsAndLoginUserId
+[33m77ac491[m Merge pull request #11 from amr3ita/kemo
+[33m94f9e7c[m comment
+[33m665914f[m modifyy
+[33mfb39af7[m Merge pull request #10 from amr3ita/Kemo
+[33m4970ca6[m Merge branch 'master' into Kemo
+[33m6a68b30[m test1Program.cs
+[33m17785b1[m testProgram.cs
+[33mdb1e2b3[m modify
+[33m5034d52[m modify
+[33m2640104[m Editprogram.cs
+[33m201f6a9[m Merge pull request #8 from amr3ita/Kemo
+[33mdb24663[m merged done
+[33m45d7dc1[m editFollow
+[33mf72f351[m auth
+[33m3f08ea3[m Merge pull request #7 from amr3ita/Kemo
+[33m7ed6ebb[m Merge branch 'master' into Kemo
+[33m571a86f[m addFollow
+[33me372c71[m GetAllUsers
+[33m56b0d99[m empty lines
+[33m84e3437[m Update AuthService
+[33m80749c1[m updatePassword and DeleteUser
+[33mf384981[m Nothing
+[33m6e262fc[m Nothing
+[33mc24338d[m Merge pull request #6 from amr3ita/EditLessonImage
+[33m7e33cba[m updateLesson
+[33m84b2646[m update controllers names
+[33mbf66c9f[m add migration
+[33me2c3ef0[m update image table
+[33m6f9d4dc[m Merge pull request #5 from amr3ita/comment
+[33me432a65[m Add comment
+[33m8633a50[m update
+[33m2288d91[m Merge pull request #4 from amr3ita/AddPost
+[33mad55ccf[m add Post
+[33m27d2c56[m topicService
+[33m391ed54[m Update Lesson Service
+[33m1ebd400[m Merge pull request #3 from amr3ita/revert-2-kemo
+[33m4cec7ae[m Revert "Kemo"
+[33me7a6a28[m Merge pull request #2 from amr3ita/kemo
+[33mfbf57ca[m edit
+[33me929156[m Edit Lesson
+[33m13afc70[m last try
+[33m0874ee0[m editDto
+[33m26aa35e[m rabna yster
+[33m9a08d03[m Create CRUD Operations For Quiz
+[33m67ae325[m Create CRUD Operations For Question
+[33m2952295[m Add project files.
