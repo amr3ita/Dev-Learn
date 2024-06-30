@@ -4,6 +4,7 @@ using Code_Road.Dto.User;
 using Code_Road.Models;
 using Code_Road.Services.PostService;
 using Code_Road.Services.PostService.AuthService;
+using Code_Road.Services.UserService;
 using Microsoft.EntityFrameworkCore;
 
 namespace Code_Road.Services.CommentService
@@ -12,13 +13,15 @@ namespace Code_Road.Services.CommentService
     {
         private readonly AppDbContext _context;
         private readonly IAuthService _authService;
+        private readonly IUserService _userService;
         private readonly IPostService _postService;
 
-        public CommentService(AppDbContext context, IAuthService authService, IPostService postService)
+        public CommentService(AppDbContext context, IAuthService authService, IPostService postService, IUserService userService)
         {
             _context = context;
             _authService = authService;
             _postService = postService;
+            _userService = userService;
         }
         public async Task<List<CommentDto>> GetComments(int PostId)
         {
@@ -51,6 +54,7 @@ namespace Code_Road.Services.CommentService
                     Id = comment.Id,
                     Content = comment.Content,
                     UserName = await _authService.GetUserName(comment.UserId),
+                    UserImage = await _userService.GetUserImage(comment.UserId),
                     Up = comment.Up,
                     Down = comment.Down,
                     Date = DateTime.Now,
@@ -80,7 +84,7 @@ namespace Code_Road.Services.CommentService
         }
         public async Task<CommentDto> GetCommentById(int id, string userId)
         {
-            Comment? comment = await _context.Comments.SingleOrDefaultAsync(c => c.Id == id);
+            Comment? comment = await _context.Comments.Include(u => u.User).SingleOrDefaultAsync(c => c.Id == id);
             StateDto state = new StateDto() { Flag = false, Message = "there is no comment with this id" };
             if (comment is null)
                 return new CommentDto() { State = state };
@@ -91,10 +95,10 @@ namespace Code_Road.Services.CommentService
                 State = state,
                 Content = comment.Content,
                 Date = comment.Date,
-                Up = comment.Up
-            ,
+                Up = comment.Up,
+                UserImage = await _userService.GetUserImage(userId),
                 Down = comment.Down,
-                UserName = userId
+                UserName = comment.User.UserName,
             };
         }
         public async Task<StateDto> DeleteComment(int commentId, int postId, string userId)
@@ -250,7 +254,7 @@ namespace Code_Road.Services.CommentService
                         commentvote.Vote = vote;
                         _context.Comments_Vote.Update(commentvote);
                     }
-                    else
+                    else if (commentvote.Vote == 0 && vote == 1)
                     {
                         comment.Up++;
                         comment.Down--;
