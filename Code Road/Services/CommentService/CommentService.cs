@@ -264,7 +264,8 @@ namespace Code_Road.Services.CommentService
                 }
                 else
                 {
-                    commentvote.Vote = vote;
+                    commentvote = new CommentVote { Vote = vote };
+                    //commentvote.Vote = vote;
                     commentvote.CommentId = commentId;
                     commentvote.UserId = user.userInfo.Id;
                     commentvote.UserName = user.userInfo.UserName;
