@@ -1,6 +1,7 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Lesson;
 using Code_Road.Services.LessonService;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Code_Road.Controllers
@@ -40,8 +41,8 @@ namespace Code_Road.Controllers
             return Ok(lesson);
         }
         [HttpPost("AddLesson")]
-        //[Authorize(Roles = "Admin")]
-        //ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+
         public async Task<IActionResult> AddLesson([FromForm] AddLessonDto model)
         {
             if (!ModelState.IsValid)
@@ -51,8 +52,9 @@ namespace Code_Road.Controllers
                 return BadRequest(lesson.State.Message);
             return Ok(lesson);
         }
-        [HttpPatch("EditLesson")]
-        //ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
+        [HttpPatch("EditLesson/{id:int}")]
+
         public async Task<IActionResult> EditLesson(int id, [FromForm] EditLessonDto model)
         {
             if (!ModelState.IsValid)
@@ -62,7 +64,7 @@ namespace Code_Road.Controllers
                 return BadRequest(lesson.State.Message);
             return Ok(lesson);
         }
-        [HttpDelete("DeleteLesson")]
+        [HttpDelete("DeleteLesson/{id:int}")]
         //ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteLesson(int id)
         {

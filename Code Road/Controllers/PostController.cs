@@ -1,7 +1,6 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Post;
 using Code_Road.Services.PostService;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Code_Road.Controllers
@@ -29,10 +28,13 @@ namespace Code_Road.Controllers
         [HttpGet("userPosts/{userId}")]
         public async Task<IActionResult> GetAllByUserId(string userId)
         {
-            var posts = await _postService.GetAllByUserIdAsync(userId);
 
-            if (posts is not null)
+            var posts = await _postService.GetAllByUserIdAsync(userId);
+            if (posts.Count > 0)
+            {
+                if (!posts[0].Status.Flag) return BadRequest(posts[0].Status.Message);
                 return Ok(posts);
+            }
 
             return NotFound(new StateDto { Flag = false, Message = "No posts found for the specified user" });
         }
@@ -40,9 +42,9 @@ namespace Code_Road.Controllers
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
             var post = await _postService.GetByIdAsync(id);
-            if (post.Status.Flag)
+            if (post.State.Flag)
                 return Ok(post);
-            return NotFound(post.Status.Message);
+            return NotFound(post.State.Message);
         }
         [HttpPost("CreatePost")]
         public async Task<IActionResult> CreatePost([FromForm] AddPostDto postModel)

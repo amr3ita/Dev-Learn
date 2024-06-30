@@ -131,7 +131,7 @@ namespace Code_Road.Services.CommentService
             if (content == "")
                 return state;
             state.Message = "Post Not Found";
-            if (!(await _postService.GetByIdAsync(postId)).Status.Flag)
+            if (!(await _postService.GetByIdAsync(postId)).State.Flag)
                 return state;
             var user = await _authService.GetCurrentUserAsync();
             state.Flag = true;

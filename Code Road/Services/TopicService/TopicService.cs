@@ -89,14 +89,15 @@ namespace Code_Road.Services.TopicService
         public async Task<TopicDto> AddTopic(string name)
         {
             Topic? topic = new Topic();
-            Topic? topic1 = await _context.Topics.FirstOrDefaultAsync(t => t.Name == name);
+            //Topic? topic1 = await _context.Topics.FirstOrDefaultAsync(t => t.Name == name);
 
             List<string> lessons = new List<string>();
-            StateDto state = new StateDto() { Flag = false, Message = "failed to add" };
-            if (topic1 is not null) return new TopicDto() { State = state };
-            string topicName = name;
-            char c = char.ToUpper(topicName[0]);
-            topic.Name = c + topicName.Substring(1);
+            StateDto state = new StateDto() { Flag = false, Message = "Topic Exist" };
+            if (await _context.Topics.AnyAsync(t => t.Name == name)) return new TopicDto() { State = state };
+            //string topicName = name;
+            //char c = char.ToUpper(topicName[0]);
+            //topic.Name = c + topicName.Substring(1);
+            topic.Name = name;
             await _context.Topics.AddAsync(topic);
             await _context.SaveChangesAsync();
             state.Flag = true;

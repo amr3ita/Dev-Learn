@@ -1,4 +1,5 @@
 ﻿using Code_Road.Dto.Account;
+using Code_Road.Dto.Comment;
 using Code_Road.Dto.Post;
 using Code_Road.Models;
 using Code_Road.Services.UserService;
@@ -15,6 +16,7 @@ namespace Code_Road.Services.PostService
         private readonly IWebHostEnvironment _environment;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
+
         public PostService(AppDbContext context, UserManager<ApplicationUser> userManager, IWebHostEnvironment environment, IHttpContextAccessor httpContextAccessor, IUserService userService)
         {
             _context = context;
@@ -23,6 +25,7 @@ namespace Code_Road.Services.PostService
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
             _userService = userService;
+
         }
 
         public async Task<List<PostDto>> GetAllAsync()
@@ -36,12 +39,13 @@ namespace Code_Road.Services.PostService
                 {
                     Status = new StateDto { Flag = true, Message = "Success" },
                     PostId = p.Id,
+                    UserId = p.UserId,
                     UserName = p.User.FirstName + " " + p.User.LastName,
                     Content = p.Content,
                     Up = p.Up,
                     Down = p.Down,
                     Date = p.Date,
-                    Image_url = p.Images.Where(i => i.UserId == p.User.Id).Select(i => i.ImageUrl).ToList()
+                    Image_url = p.Images.Where(i => (i.UserId == p.User.Id) && i.PostId == p.Id).Select(i => i.ImageUrl).ToList()
                 })
                 .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
                 .ThenByDescending(p => p.Date.Date) // Then by date
@@ -53,7 +57,10 @@ namespace Code_Road.Services.PostService
             {
                 return null;
             }
-
+            foreach (var post in posts)
+            {
+                post.UserImage = await _userService.GetUserImage(post.UserId);
+            }
             return posts;
         }
 
@@ -65,6 +72,8 @@ namespace Code_Road.Services.PostService
         /// <returns></returns>
         public async Task<List<PostDto>> GetAllByUserIdAsync(string user_id)
         {
+            if (await _userManager.FindByIdAsync(user_id) is null)
+                return new List<PostDto> { new PostDto { Status = new StateDto { Flag = false, Message = "user invalid" } } };
             var today = DateTime.Today;
             var posts = await _context.Posts
                .Include(p => p.Images)
@@ -79,7 +88,7 @@ namespace Code_Road.Services.PostService
                    Up = p.Up,
                    Down = p.Down,
                    Date = p.Date,
-                   Image_url = p.Images.Where(i => i.UserId == p.User.Id).Select(i => i.ImageUrl).ToList()
+                   Image_url = p.Images.Where(i => i.UserId == p.User.Id && i.PostId == p.Id).Select(i => i.ImageUrl).ToList()
                })
                .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
                .ThenByDescending(p => p.Date.Date) // Then by date 
@@ -89,11 +98,15 @@ namespace Code_Road.Services.PostService
             {
                 return null;
             }
-
+            if (posts.Count > 0)
+            {
+                posts[0].UserId = user_id;
+                posts[0].UserImage = await _userService.GetUserImage(user_id);
+            }
             return posts;
         }
 
-        public async Task<PostDto> GetByIdAsync(int post_id)
+        public async Task<PostAndCommentsDto> GetByIdAsync(int post_id)
         {
             StateDto state = new StateDto();
             var post = await _context.Posts
@@ -105,26 +118,31 @@ namespace Code_Road.Services.PostService
             {
                 state.Flag = false;
                 state.Message = "Post Not Found ! ";
-                return new PostDto { Status = state };
+                return new PostAndCommentsDto { State = state };
             }
+            state.Flag = true;
+            state.Message = "Sucsses";
+
             var postDto = new PostDto
             {
-                Status = new StateDto
-                {
-                    Flag = true,
-                    Message = "Sucsses"
-                },
+                Status = state,
                 PostId = post.Id,
                 UserId = post.UserId,
-                UserName = post.User.FirstName + " " + post.User.LastName,
                 UserImage = await _userService.GetUserImage(post.UserId),
+                UserName = post.User.FirstName + " " + post.User.LastName,
                 Content = post.Content,
                 Up = post.Up,
                 Down = post.Down,
                 Date = post.Date,
                 Image_url = post.Images.Where(i => i.UserId == post.User.Id).Select(i => i.ImageUrl).ToList()
             };
-            return postDto;
+            PostAndCommentsDto pcd = new PostAndCommentsDto();
+            pcd.State = state;
+            pcd.post = postDto;
+
+            pcd.Comments = await _context.Comments.Include(d => d.User).Where(c => c.PostId == post.Id).Select(cs => new CommentDto { Id = cs.Id, UserName = cs.User.UserName, Content = cs.Content, Up = cs.Up, Down = cs.Down, Date = cs.Date }).ToListAsync();
+
+            return pcd;
         }
 
         public async Task<PostDto> AddPostAsync(AddPostDto postModel)
@@ -158,7 +176,8 @@ namespace Code_Road.Services.PostService
                 post.Images = await GetImagePath(postModel.Images, user_name, post.Id, user.Id);
             }
 
-            return await GetByIdAsync(post.Id);
+            var test = await GetByIdAsync(post.Id);
+            return test.post;
 
         }
 
@@ -208,8 +227,9 @@ namespace Code_Road.Services.PostService
             //old_post.Content =postModel.Content;
             await _context.SaveChangesAsync();
             Console.WriteLine($"After operation {old_post.Content}");
-
-            return await GetByIdAsync(old_post.Id);
+            var test = await GetByIdAsync(old_post.Id);
+            return test.post;
+            // return await GetByIdAsync(old_post.Id);
         }
 
         public async Task<StateDto> DeletePostAsync(int post_id)
