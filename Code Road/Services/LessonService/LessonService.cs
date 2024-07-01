@@ -127,7 +127,7 @@ namespace Code_Road.Services.LessonService
                     Level = lesson.Level,
                     Topic = lesson.topic.Name,
                     Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
-                    QuizId = (lesson.Quiz.Id == null) ? 0 : lesson.Quiz.Id,
+                    QuizId = (lesson.Quiz == null) ? 0 : lesson.Quiz.Id,
                     State = state
                 });
             }

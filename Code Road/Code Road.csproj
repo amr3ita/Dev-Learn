@@ -1,10 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Code_Road</RootNamespace>
+    <UserSecretsId>bc7271fa-b891-44a4-bcc1-f06a5512181d</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
