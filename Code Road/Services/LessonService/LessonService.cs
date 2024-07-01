@@ -73,6 +73,7 @@ namespace Code_Road.Services.LessonService
 
             return new LessonDto()
             {
+                LessonId = id,
                 Explanation = lesson.Explanation,
                 Name = lesson.Name,
                 Level = lesson.Level,
@@ -170,7 +171,7 @@ namespace Code_Road.Services.LessonService
         }
         public async Task<LessonDto> UpdateLessonById(int id, EditLessonDto model)
         {
-            Lesson? oldLesson = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == id);
+            Lesson? oldLesson = await _context.Lessons.Include(t => t.topic).FirstOrDefaultAsync(l => l.Id == id);
             StateDto state = new StateDto() { Flag = false };
             state.Message = "There is no Lesson with this id";
             if (oldLesson is null)
@@ -190,7 +191,7 @@ namespace Code_Road.Services.LessonService
             oldLesson.TopicId = topic.Id;
             if (images is not null)
                 oldLesson.Images = images;
-
+            _context.Update(oldLesson);
             await _context.SaveChangesAsync();
             return await GetLessonById(oldLesson.Id);
         }
@@ -209,7 +210,7 @@ namespace Code_Road.Services.LessonService
                 _context.Image.RemoveRange(images);
                 await DeleteImageFile(oldLesson.topic.Name, oldLesson.Name);
             }
-            Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == q.LessonId);
+            Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.LessonId == id);
             if (quiz is not null)
             {
                 await _quizService.DeleteQuiz(quiz.Id);
@@ -222,7 +223,7 @@ namespace Code_Road.Services.LessonService
 
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             state.Flag = true;
             state.Message = "Deleted Successfully";
             return state;
