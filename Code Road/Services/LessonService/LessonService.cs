@@ -93,6 +93,22 @@ namespace Code_Road.Services.LessonService
                 state.Message = "there is no Lesson with this Name";
                 return new LessonDto() { State = state };
             }
+            if ((await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)) == null)
+            {
+
+                return new LessonDto()
+                {
+                    LessonId = lesson.Id,
+                    Explanation = lesson.Explanation,
+                    Name = lesson.Name,
+                    Level = lesson.Level,
+                    Topic = lesson.topic.Name,
+                    Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
+                    QuizId = 0,
+                    State = state
+                };
+            }
+
             return new LessonDto()
             {
                 LessonId = lesson.Id,
@@ -101,9 +117,10 @@ namespace Code_Road.Services.LessonService
                 Level = lesson.Level,
                 Topic = lesson.topic.Name,
                 Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
-                QuizId = lesson.Quiz.Id,
+                QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
                 State = state
             };
+
         }
         public async Task<List<LessonDto>> GetLessonAddedByUser(string userId)
         {
@@ -184,7 +201,7 @@ namespace Code_Road.Services.LessonService
             Topic? topic = await _context.Topics.FirstOrDefaultAsync(t => t.Name == model.TopicName);
             if (topic is null)
                 return new LessonDto() { State = state };
-            List<Image> images = await ChangeDirctoryName(oldLesson.Id, oldLesson.Name, oldLesson.topic.Name, model.Name, model.TopicName);
+            List<Image> images = await ChangeDirctoryName(oldLesson.Id, oldLesson.Name, oldLesson.topic.Name, model.Name, topic.Name);
             oldLesson.Name = model.Name;
             oldLesson.Level = model.Level;
             oldLesson.Explanation = model.Explanation;
