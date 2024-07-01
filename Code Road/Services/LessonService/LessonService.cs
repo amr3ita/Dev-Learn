@@ -66,7 +66,7 @@ namespace Code_Road.Services.LessonService
                     Level = lesson.Level,
                     Topic = lesson.topic.Name,
                     Img = await _context.Image.Where(l => l.LessonId == id).Select(i => i.ImageUrl).ToListAsync(),
-                    QuizId = null,
+                    QuizId = 0,
                     State = state
                 };
             }
