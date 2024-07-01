@@ -162,14 +162,14 @@ namespace Code_Road.Services.UserService
                 if ((await _context.Quizzes.FirstOrDefaultAsync(c => c.LessonId == lesson.LessonId)) == null)
                 {
                     string finishedLessonName = await CheckLessonId(lesson.LessonId);
-                    finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, QuizId = 0, Degree = lesson.Degree });
+                    finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonId = lesson.LessonId, LessonName = finishedLessonName, QuizId = 0, Degree = lesson.Degree });
 
                 }
                 else
                 {
                     int quizid = (await _context.Quizzes.FirstOrDefaultAsync(c => c.LessonId == lesson.LessonId)).Id;
                     string finishedLessonName = await CheckLessonId(lesson.LessonId);
-                    finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, QuizId = quizid, Degree = lesson.Degree });
+                    finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonId = lesson.LessonId, LessonName = finishedLessonName, QuizId = quizid, Degree = lesson.Degree });
                 }
 
 
