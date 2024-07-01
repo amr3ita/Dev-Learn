@@ -60,7 +60,7 @@ namespace Code_Road.Services.LessonService
 
                 return new LessonDto()
                 {
-
+                    LessonId = lesson.Id,
                     Explanation = lesson.Explanation,
                     Name = lesson.Name,
                     Level = lesson.Level,
@@ -94,6 +94,7 @@ namespace Code_Road.Services.LessonService
             }
             return new LessonDto()
             {
+                LessonId = lesson.Id,
                 Explanation = lesson.Explanation,
                 Name = lesson.Name,
                 Level = lesson.Level,
@@ -121,6 +122,7 @@ namespace Code_Road.Services.LessonService
             {
                 returnedLessons.Add(new LessonDto()
                 {
+                    LessonId = lesson.Id,
                     Explanation = lesson.Explanation,
                     Name = lesson.Name,
                     Level = lesson.Level,
