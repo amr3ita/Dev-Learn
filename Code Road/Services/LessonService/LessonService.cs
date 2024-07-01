@@ -55,6 +55,22 @@ namespace Code_Road.Services.LessonService
                 state.Message = "there is no Lesson with this Id";
                 return new LessonDto() { State = state };
             }
+            if ((await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)) == null)
+            {
+
+                return new LessonDto()
+                {
+
+                    Explanation = lesson.Explanation,
+                    Name = lesson.Name,
+                    Level = lesson.Level,
+                    Topic = lesson.topic.Name,
+                    Img = await _context.Image.Where(l => l.LessonId == id).Select(i => i.ImageUrl).ToListAsync(),
+                    QuizId = 0,
+                    State = state
+                };
+            }
+
             return new LessonDto()
             {
 
@@ -63,11 +79,9 @@ namespace Code_Road.Services.LessonService
                 Level = lesson.Level,
                 Topic = lesson.topic.Name,
                 Img = await _context.Image.Where(l => l.LessonId == id).Select(i => i.ImageUrl).ToListAsync(),
-                //QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
+                QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
                 State = state
             };
-
-
         }
         public async Task<LessonDto> GetLessonByName(string name)
         {
@@ -86,7 +100,7 @@ namespace Code_Road.Services.LessonService
                 Level = lesson.Level,
                 Topic = lesson.topic.Name,
                 Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
-                //QuizId = lesson.Quiz.Id,
+                QuizId = lesson.Quiz.Id,
                 State = state
             };
         }
@@ -113,7 +127,7 @@ namespace Code_Road.Services.LessonService
                     Level = lesson.Level,
                     Topic = lesson.topic.Name,
                     Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
-                    //QuizId = lesson.Quiz.Id,
+                    QuizId = (lesson.Quiz.Id == null) ? 0 : lesson.Quiz.Id,
                     State = state
                 });
             }
