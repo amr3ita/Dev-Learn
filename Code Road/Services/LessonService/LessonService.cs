@@ -220,13 +220,14 @@ namespace Code_Road.Services.LessonService
             if (oldLesson is null)
                 return state;
 
-
+            List<FinishedLessons> finishedLessons = await _context.FinishedLessons.Where(fl => fl.LessonId == id).ToListAsync();
             List<Image> images = await _context.Image.Where(l => l.LessonId == id).ToListAsync();
             if (images.Count > 0)
             {
                 _context.Image.RemoveRange(images);
                 await DeleteImageFile(oldLesson.topic.Name, oldLesson.Name);
             }
+            if (finishedLessons.Count > 0) _context.FinishedLessons.RemoveRange(finishedLessons);
             Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.LessonId == id);
             if (quiz is not null)
             {
@@ -236,6 +237,7 @@ namespace Code_Road.Services.LessonService
             }
             else
             {
+
                 _context.Lessons.Remove(oldLesson);
 
             }
