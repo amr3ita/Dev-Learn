@@ -159,8 +159,9 @@ namespace Code_Road.Services.UserService
             finishedLessons.Count = lessons.Count;
             foreach (var lesson in lessons)
             {
+                int quizid = ((await _context.Quizzes.FirstOrDefaultAsync(c => c.LessonId == lesson.LessonId)).Id);
                 string finishedLessonName = await CheckLessonId(lesson.LessonId);
-                finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, Degree = lesson.Degree });
+                finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, QuizId = quizid, Degree = lesson.Degree });
             }
             return finishedLessons;
         }
@@ -178,10 +179,10 @@ namespace Code_Road.Services.UserService
             Quiz? quiz = await _context.Quizzes.Where(l => l.LessonId == lessonId).FirstOrDefaultAsync();
             if (quiz is null) return state;
             state = await UpdateDegree(userId, lessonId, degree, quiz);
-            if (state.Flag) return state;
-            state.Message = "oops.You Failed";
-            if (degree < (quiz.TotalDegree * .6) || degree < 0 || degree >= quiz.TotalDegree)
-                return state;
+            //if (state.Flag) return state;
+            //state.Message = "oops.You Failed";
+            //if (degree < (quiz.TotalDegree * .6) || degree < 0 || degree >= quiz.TotalDegree)
+            //    return state;
             state.Flag = true;
             state.Message = "Congratulation,You Successed";
             FinishedLessons finishedLesson = new FinishedLessons { UserId = userId, LessonId = lessonId, Degree = degree };
@@ -230,8 +231,8 @@ namespace Code_Road.Services.UserService
             var user = await _user.FindByIdAsync(userId);
             if (((DateTime.Now.Day) != (user.ActiceDay.Day)))
             {
-
-                if (((DateTime.Now.Day) - (user.ActiceDay.Day)) == 1)
+                var yasterday = DateTime.Now.AddDays(-1);
+                if (((user.ActiceDay.Day).CompareTo(yasterday.Day) == 0) && ((user.ActiceDay.Month).CompareTo(yasterday.Month) == 0) && ((user.ActiceDay.Year).CompareTo(yasterday.Year) == 0))
                 {
                     user.OnlineDays++;
                     user.ActiceDay = DateTime.Now;
