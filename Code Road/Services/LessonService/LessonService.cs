@@ -66,14 +66,13 @@ namespace Code_Road.Services.LessonService
                     Level = lesson.Level,
                     Topic = lesson.topic.Name,
                     Img = await _context.Image.Where(l => l.LessonId == id).Select(i => i.ImageUrl).ToListAsync(),
-                    QuizId = 0,
+                    QuizId = null,
                     State = state
                 };
             }
 
             return new LessonDto()
             {
-
                 Explanation = lesson.Explanation,
                 Name = lesson.Name,
                 Level = lesson.Level,
@@ -85,7 +84,7 @@ namespace Code_Road.Services.LessonService
         }
         public async Task<LessonDto> GetLessonByName(string name)
         {
-            Lesson? lesson = await _context.Lessons.Include(t => t.topic).FirstOrDefaultAsync(t => t.Name == name);
+            Lesson? lesson = await _context.Lessons.Include(t => t.topic).Include(q => q.Quiz).FirstOrDefaultAsync(t => t.Name == name);
             StateDto state = new StateDto() { Flag = true, Message = "every thing go well" };
             if (lesson is null)
             {
