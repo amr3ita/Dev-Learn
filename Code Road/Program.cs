@@ -67,6 +67,10 @@ namespace Code_Road
             //configure email settings
             builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("Email"));
 
+            var emailSettings = builder.Configuration.GetSection("Email").Get<EmailSettings>();
+
+            builder.Services.AddSingleton(emailSettings);
+
             // Register UrlHelperFactoryService and IHttpContextAccessor
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             builder.Services.AddScoped<UrlHelperFactoryService>();
