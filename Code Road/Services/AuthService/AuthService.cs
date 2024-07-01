@@ -207,7 +207,7 @@ namespace Code_Road.Services.PostService.AuthService
             var admin = await GetCurrentUserAsync();
             if (admin.IsAdmin == true)
             {
-                var user = await _userManager.FindByIdAsync(model.UserId);
+                var user = await _userManager.FindByEmailAsync(model.UserEmail);
 
                 // if user not found
                 if (user is null)

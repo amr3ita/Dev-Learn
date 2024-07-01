@@ -15,34 +15,32 @@ namespace Code_Road.Services.QuizService
             _context = context;
             _question = question;
         }
-        public async Task<List<Quiz>> GetAllQuizzes()
+        public async Task<List<GetQuizDetailsDto>> GetAllQuizzes()
         {
-            GetQuizDetailsDto quizDetails = new GetQuizDetailsDto();
+            List<GetQuizDetailsDto> allQuizzes = new List<GetQuizDetailsDto>();
             List<Quiz> quizzes = await _context.Quizzes.Include(q => q.Questions).ToListAsync();
-            if (quizzes.Count > 0)
-                return quizzes;
-
-            return null; // if not found quizzes
+            foreach (var quiz in quizzes)
+            {
+                var lessonName = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == quiz.LessonId);
+                var questions = await _context.Questions.Where(q => q.QuizId == quiz.Id).ToListAsync();
+                allQuizzes.Add(new GetQuizDetailsDto { QuizId = quiz.Id, LessonName = lessonName.Name, TotalDegree = quiz.TotalDegree, Questions = questions });
+            }
+            return allQuizzes;
         }
         public async Task<GetQuizDetailsDto> GetQuizWithId(int QuizId)
         {
             GetQuizDetailsDto quizDetails = new GetQuizDetailsDto();
-            StateDto status = new StateDto();
-            Quiz quiz = await _context.Quizzes.Include(q => q.Questions).FirstOrDefaultAsync(q => q.Id == QuizId);
+            Quiz? quiz = await _context.Quizzes.Include(q => q.Questions).FirstOrDefaultAsync(q => q.Id == QuizId);
             if (quiz is not null)
             {
-                status.Flag = true;
-                status.Message = $"Successfully";
-                quizDetails.State = status; // configure state
-
-                quizDetails.Quiz = quiz; // configre quiz
+                var lesson = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == quiz.LessonId);
+                quizDetails.QuizId = quiz.Id;
+                quizDetails.LessonName = lesson.Name;
+                quizDetails.TotalDegree = quiz.TotalDegree;
+                quizDetails.Questions = await _context.Questions.Where(q => q.QuizId == quiz.Id).ToListAsync();
                 return quizDetails;
             }
-            status.Flag = false;
-            status.Message = $"There is no quiz with id {QuizId}";
-            quizDetails.State = status;
-
-            return quizDetails;
+            return null;
         }
         public async Task<StateDto> AddQuiz(AddQuizDto Model)
         {

@@ -1,8 +1,11 @@
-﻿namespace Code_Road.Dto.Account
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Code_Road.Dto.Account
 {
     public class AddUserToRoleDto
     {
-        public string UserId { get; set; }
+        [EmailAddress]
+        public string UserEmail { get; set; }
         public string Role { get; set; }
     }
 }
