@@ -6,6 +6,7 @@ namespace Code_Road.Dto.Quizzes
     {
         public int QuizId { get; set; }
         public int? TotalDegree { get; set; }
+        public int LessonId { get; set; }
         public string LessonName { get; set; }
         public List<Question>? Questions { get; set; }
     }

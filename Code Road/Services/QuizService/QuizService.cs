@@ -21,9 +21,9 @@ namespace Code_Road.Services.QuizService
             List<Quiz> quizzes = await _context.Quizzes.Include(q => q.Questions).ToListAsync();
             foreach (var quiz in quizzes)
             {
-                var lessonName = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == quiz.LessonId);
+                var lesson = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == quiz.LessonId);
                 var questions = await _context.Questions.Where(q => q.QuizId == quiz.Id).ToListAsync();
-                allQuizzes.Add(new GetQuizDetailsDto { QuizId = quiz.Id, LessonName = lessonName.Name, TotalDegree = quiz.TotalDegree, Questions = questions });
+                allQuizzes.Add(new GetQuizDetailsDto { QuizId = quiz.Id, LessonId = lesson.Id, LessonName = lesson.Name, TotalDegree = quiz.TotalDegree, Questions = questions });
             }
             return allQuizzes;
         }
@@ -35,6 +35,7 @@ namespace Code_Road.Services.QuizService
             {
                 var lesson = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == quiz.LessonId);
                 quizDetails.QuizId = quiz.Id;
+                quizDetails.LessonId = lesson.Id;
                 quizDetails.LessonName = lesson.Name;
                 quizDetails.TotalDegree = quiz.TotalDegree;
                 quizDetails.Questions = await _context.Questions.Where(q => q.QuizId == quiz.Id).ToListAsync();
