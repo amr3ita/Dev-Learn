@@ -50,7 +50,10 @@ namespace Code_Road.Services.PostService.AuthService
         // Get All Users
         public async Task<List<UsersDto>> GetAllUsers()
         {
-            return await _userManager.Users.Select(u => new UsersDto { Name = $"{u.FirstName} {u.LastName}", UserName = u.UserName, Email = u.Email }).ToListAsync();
+            var admin = await GetCurrentUserAsync();
+            if (admin.IsAdmin == true)
+                return await _userManager.Users.Select(u => new UsersDto { Name = $"{u.FirstName} {u.LastName}", UserName = u.UserName, Email = u.Email }).ToListAsync();
+            return null;
         }
 
         // Register
@@ -201,21 +204,26 @@ namespace Code_Road.Services.PostService.AuthService
         // Add User To Role
         public async Task<StateDto> AddUserToRoleAsync(AddUserToRoleDto model)
         {
-            var user = await _userManager.FindByIdAsync(model.UserId);
+            var admin = await GetCurrentUserAsync();
+            if (admin.IsAdmin == true)
+            {
+                var user = await _userManager.FindByIdAsync(model.UserId);
 
-            // if user not found
-            if (user is null)
-                return new StateDto() { Flag = false, Message = "User Not Found" };
-            // if role not found
-            if (await _roleManager.RoleExistsAsync(model.Role) == false)
-                return new StateDto() { Flag = false, Message = $"{model.Role} Role Not Found" };
+                // if user not found
+                if (user is null)
+                    return new StateDto() { Flag = false, Message = "User Not Found" };
+                // if role not found
+                if (await _roleManager.RoleExistsAsync(model.Role) == false)
+                    return new StateDto() { Flag = false, Message = $"{model.Role} Role Not Found" };
 
-            // if user is assigned to this role
-            if (await _userManager.IsInRoleAsync(user, model.Role) == true)
-                return new StateDto() { Flag = false, Message = "User is already assigned to this role" };
+                // if user is assigned to this role
+                if (await _userManager.IsInRoleAsync(user, model.Role) == true)
+                    return new StateDto() { Flag = false, Message = "User is already assigned to this role" };
 
-            await _userManager.AddToRoleAsync(user, model.Role);
-            return new StateDto() { Flag = true, Message = "User Added To Role Successfully" };
+                await _userManager.AddToRoleAsync(user, model.Role);
+                return new StateDto() { Flag = true, Message = "User Added To Role Successfully" };
+            }
+            return new StateDto { Flag = false, Message = "You Have No Permission to Do That!!" };
         }
 
         // get user name from id
@@ -258,6 +266,7 @@ namespace Code_Road.Services.PostService.AuthService
             }
             return state;
         }
+
         // Update User Name
         public async Task<StateDto> UpdateUserName(string userName)
         {
@@ -399,6 +408,7 @@ namespace Code_Road.Services.PostService.AuthService
                 return status;
             }
         }
+
         // user delete his account
         public async Task<StateDto> DeleteUserAccount()
         {

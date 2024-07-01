@@ -46,7 +46,6 @@ namespace Code_Road.Services.VotesService
                         post.Up--;
                         _context.Posts.Update(post);
                         await _context.SaveChangesAsync();
-                        await _postService.DecreaseUpvoteAsync(postId);
                         return new StateDto { Flag = true, Message = "Up vote is deleted" };
                     }
                     else if (postVote.Vote == 0 && vote == 0)
@@ -55,24 +54,19 @@ namespace Code_Road.Services.VotesService
                         post.Down--;
                         _context.Posts.Update(post);
                         await _context.SaveChangesAsync();
-                        await _postService.DecreaseDownvoteAsync(postId);
                         return new StateDto { Flag = true, Message = "Down vote is deleted" };
                     }
                     else if (postVote.Vote == 1 && vote == 0)
                     {
                         post.Up--;
-                        await _postService.DecreaseUpvoteAsync(postId);
                         post.Down++;
-                        await _postService.IncreaseDownvoteAsync(postId);
                         postVote.Vote = vote;
                         _context.Posts_Vote.Update(postVote);
                     }
                     else if (postVote.Vote == 0 && vote == 1)
                     {
                         post.Up++;
-                        await _postService.IncreaseUpvoteAsync(postId);
                         post.Down--;
-                        await _postService.DecreaseDownvoteAsync(postId);
                         postVote.Vote = vote;
                         _context.Posts_Vote.Update(postVote);
                     }
@@ -88,12 +82,10 @@ namespace Code_Road.Services.VotesService
                     if (vote == 1)
                     {
                         post.Up++;
-                        await _postService.IncreaseUpvoteAsync(postId);
                     }
                     else
                     {
                         post.Down++;
-                        await _postService.IncreaseDownvoteAsync(postId);
                     }
                 }
                 _context.Posts.Update(post);
@@ -123,6 +115,7 @@ namespace Code_Road.Services.VotesService
             }
             return userPostVotes;
         }
+
 
         // comments
         public async Task<StateDto> CommentVote(int commentId, int vote)
@@ -214,6 +207,7 @@ namespace Code_Road.Services.VotesService
             }
             return userPostVotes;
         }
+
         private async Task<AllUserDataDto> GetCurrentUserAsync()
         {
             AllUserDataDto user = new AllUserDataDto();

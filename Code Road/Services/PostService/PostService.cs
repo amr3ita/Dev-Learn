@@ -1,6 +1,7 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Comment;
 using Code_Road.Dto.Post;
+using Code_Road.Dto.User;
 using Code_Road.Models;
 using Code_Road.Services.UserService;
 using Microsoft.AspNetCore.Identity;
@@ -118,119 +119,188 @@ namespace Code_Road.Services.PostService
             return pcd;
         }
 
-        public async Task<PostDto> AddPostAsync(AddPostDto postModel)
+        public async Task<PostDto> AddPostAsync(AllUserDataDto currentUser, AddPostDto postModel)
         {
-
-            StateDto state = new StateDto();
-            var validationResult = await ValidatePostModel(postModel);
-
-            if (!validationResult.Flag)
-                return new PostDto { Status = validationResult };
-
-            var user = await _userManager.FindByIdAsync(postModel.UserId);
-            if (user == null)
+            if (currentUser is not null)
             {
-                state.Flag = false;
-                state.Message = "Invalid user 'user not Found!' ";
-                return new PostDto { Status = state };
-            }
+                StateDto state = new StateDto();
+                var validationResult = await ValidatePostModel(postModel);
 
-            var post = new Post
-            {
-                Content = postModel.Content,
-                Date = DateTime.Now,
-                UserId = user.Id
-            };
-            await _context.Posts.AddAsync(post);
-            await _context.SaveChangesAsync();
-            if (postModel.Images != null)
-            {
-                string user_name = user.UserName;
-                post.Images = await GetImagePath(postModel.Images, user_name, post.Id, user.Id);
-            }
+                if (!validationResult.Flag)
+                    return new PostDto { Status = validationResult };
 
-            var test = await GetByIdAsync(post.Id);
-            return test.post;
-
-        }
-
-        public async Task<PostDto> UpdatePostAsync(int post_id, UpdatePostDto postModel)
-        {
-            StateDto state = new StateDto();
-            var old_post = await _context.Posts
-              .FirstOrDefaultAsync(p => p.Id == post_id);
-            //check user access 
-            Console.WriteLine($"beFore operation {old_post.Content}");
-            if (old_post.UserId != postModel.UserId)
-            {
-                state.Flag = false;
-                state.Message = "'Access Denied'or inValid UserId ";
-                return new PostDto { Status = state };
-            }
-            //Check If post exisest or not
-            if (old_post == null)
-            {
-                state.Flag = false;
-                state.Message = "Pst Not Found! ";
-                return new PostDto { Status = state };
-            }
-
-            var user = await _userManager.FindByIdAsync(postModel.UserId);
-            if (user == null)
-            {
-                state.Flag = false;
-                state.Message = "Invalid user 'user not Found!' ";
-                return new PostDto { Status = state };
-            }
-
-            old_post.Content = postModel.Content;
-            //    await _context.Posts.ExecuteUpdateAsync(old_post);
-            if (postModel.Images != null)
-            {
-                List<Image> images = await _context.Image.Where(p => p.PostId == post_id).ToListAsync();
-
-                foreach (var item in postModel.Images)
+                var user = await _userManager.FindByIdAsync(postModel.UserId);
+                if (user == null)
                 {
-                    await DeletImage(post_id);
+                    state.Flag = false;
+                    state.Message = "Invalid user 'user not Found!' ";
+                    return new PostDto { Status = state };
                 }
-                _context.Image.RemoveRange(images);
-                old_post.Images = await GetImagePath(postModel.Images, user.UserName, old_post.Id, old_post.UserId);
+
+                var post = new Post
+                {
+                    Content = postModel.Content,
+                    Date = DateTime.Now,
+                    UserId = user.Id
+                };
+                await _context.Posts.AddAsync(post);
+                await _context.SaveChangesAsync();
+                if (postModel.Images != null)
+                {
+                    string user_name = user.UserName;
+                    post.Images = await GetImagePath(postModel.Images, user_name, post.Id, user.Id);
+                }
+
+                var test = await GetByIdAsync(post.Id);
+                return test.post;
             }
-            _context.Posts.Update(old_post);
-            //old_post.Content =postModel.Content;
-            await _context.SaveChangesAsync();
-            Console.WriteLine($"After operation {old_post.Content}");
-            var test = await GetByIdAsync(old_post.Id);
-            return test.post;
-            // return await GetByIdAsync(old_post.Id);
+            return new PostDto { Status = new StateDto { Flag = false, Message = "You don't have permission to Add new post" } };
+
         }
 
-        public async Task<StateDto> DeletePostAsync(int post_id)
+        public async Task<PostDto> UpdatePostAsync(AllUserDataDto currentUser, int post_id, UpdatePostDto postModel)
         {
-            var del_post = await _context.Posts
-                .FirstOrDefaultAsync(p => p.Id == post_id);
-            List<Image> images = await _context.Image.Where(p => p.PostId == post_id).ToListAsync();
-            if (del_post != null)
+            StateDto state = new StateDto();
+            var old_post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == post_id);
+            if (currentUser.IsAdmin == true || currentUser.userInfo.Id == old_post.UserId)
             {
-                if (images.Count > 0)
+                //check user access 
+                Console.WriteLine($"beFore operation {old_post.Content}");
+                if (old_post.UserId != postModel.UserId)
                 {
+                    state.Flag = false;
+                    state.Message = "'Access Denied'or inValid UserId ";
+                    return new PostDto { Status = state };
+                }
+                //Check If post exisest or not
+                if (old_post == null)
+                {
+                    state.Flag = false;
+                    state.Message = "Pst Not Found! ";
+                    return new PostDto { Status = state };
+                }
 
-                    foreach (var image in images)
+                var user = await _userManager.FindByIdAsync(postModel.UserId);
+                if (user == null)
+                {
+                    state.Flag = false;
+                    state.Message = "Invalid user 'user not Found!' ";
+                    return new PostDto { Status = state };
+                }
+
+                old_post.Content = postModel.Content;
+                if (postModel.Images != null)
+                {
+                    List<Image> images = await _context.Image.Where(p => p.PostId == post_id).ToListAsync();
+
+                    foreach (var item in postModel.Images)
                     {
-
-                        await DeletImage(del_post.Id);
-
+                        await DeletImage(post_id);
                     }
                     _context.Image.RemoveRange(images);
-
+                    old_post.Images = await GetImagePath(postModel.Images, user.UserName, old_post.Id, old_post.UserId);
                 }
-                _context.Posts.Remove(del_post);
-
+                _context.Posts.Update(old_post);
                 await _context.SaveChangesAsync();
-
-                return new StateDto { Flag = true, Message = "deleted Successfully" };
+                Console.WriteLine($"After operation {old_post.Content}");
+                var test = await GetByIdAsync(old_post.Id);
+                return test.post;
             }
-            return new StateDto { Flag = false, Message = "not found" };
+            return new PostDto { Status = new StateDto { Flag = false, Message = "You don't have permission to update this post" } };
+        }
+
+        public async Task<StateDto> DeletePostAsync(AllUserDataDto currentUser, int post_id)
+        {
+            var del_post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == post_id);
+            if (currentUser.IsAdmin == true || del_post.UserId == currentUser.userInfo.Id)
+            {
+                List<Image> images = await _context.Image.Where(p => p.PostId == post_id).ToListAsync();
+                if (del_post != null)
+                {
+                    if (images.Count > 0)
+                    {
+
+                        foreach (var image in images)
+                        {
+
+                            await DeletImage(del_post.Id);
+
+                        }
+                        _context.Image.RemoveRange(images);
+
+                    }
+                    _context.Posts.Remove(del_post);
+
+                    await _context.SaveChangesAsync();
+
+                    return new StateDto { Flag = true, Message = "deleted Successfully" };
+                }
+                return new StateDto { Flag = false, Message = "not found" };
+            }
+            return new StateDto { Flag = false, Message = "You don't have permission to delete this post" };
+        }
+
+        public async Task<List<UsersReactDto>> GetUpVotes(int postId)
+        {
+            Post? post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+            List<UsersReactDto> users = new List<UsersReactDto>();
+            StateDto state = new StateDto { Flag = false, Message = "there is no post with this id" };
+            if (post == null)
+            {
+                users.Add(new UsersReactDto { State = state });
+                return users;
+            }
+            var votes = _context.Posts_Vote
+                .Where(pv => pv.PostId == postId && pv.Vote == 1)
+                .Select(u => new { u.UserId, u.UserName, u.ImageUrl })
+                .ToList();
+            state.Message = "there is no Up Votes yet";
+            if (votes.Count == 0)
+            {
+                users.Add(new UsersReactDto { State = state });
+                return users;
+            }
+            else
+            {
+                state.Flag = true;
+                state.Message = $"There is {votes.Count} Up votes";
+                foreach (var vote in votes)
+                {
+                    users.Add(new UsersReactDto { State = state, UserId = vote.UserId, UserName = vote.UserName, ImageUrl = vote.ImageUrl });
+                }
+                return users;
+            }
+        }
+        public async Task<List<UsersReactDto>> GetDownVotes(int postId)
+        {
+            Post? post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == postId);
+            List<UsersReactDto> users = new List<UsersReactDto>();
+            StateDto state = new StateDto { Flag = false, Message = "there is no post with this id" };
+            if (post == null)
+            {
+                users.Add(new UsersReactDto { State = state });
+                return users;
+            }
+            var votes = _context.Posts_Vote
+                .Where(pv => pv.PostId == postId && pv.Vote == 0)
+                .Select(u => new { u.UserId, u.UserName, u.ImageUrl })
+                .ToList();
+            state.Message = "there is no Down Votes yet";
+            if (votes.Count == 0)
+            {
+                users.Add(new UsersReactDto { State = state });
+                return users;
+            }
+            else
+            {
+                state.Flag = true;
+                state.Message = $"There is {votes.Count} Down votes"; ;
+                foreach (var vote in votes)
+                {
+                    users.Add(new UsersReactDto { State = state, UserId = vote.UserId, UserName = vote.UserName, ImageUrl = vote.ImageUrl });
+                }
+                return users;
+            }
         }
 
         private async Task<bool> DeletImage(int post_id)
@@ -323,73 +393,7 @@ namespace Code_Road.Services.PostService
             return Task.FromResult(state);
         }
 
-        #region Up and Down aactions
 
-        public async Task<StateDto> IncreaseUpvoteAsync(int postId)
-        {
-            var post = await _context.Posts.FindAsync(postId);
-            if (post == null)
-            {
-                return new StateDto { Flag = false, Message = "Post not found." };
-            }
-
-            post.Up++;
-            await _context.SaveChangesAsync();
-
-            return new StateDto { Flag = true, Message = "Upvote increased successfully." };
-        }
-
-        public async Task<StateDto> IncreaseDownvoteAsync(int postId)
-        {
-            var post = await _context.Posts.FindAsync(postId);
-            if (post == null)
-            {
-                return new StateDto { Flag = false, Message = "Post not found." };
-            }
-
-            post.Down++;
-            await _context.SaveChangesAsync();
-
-            return new StateDto { Flag = true, Message = "Downvote increased successfully." };
-        }
-
-        public async Task<StateDto> DecreaseUpvoteAsync(int postId)
-        {
-            var post = await _context.Posts.FindAsync(postId);
-            if (post == null)
-            {
-                return new StateDto { Flag = false, Message = "Post not found." };
-            }
-
-            if (post.Up > 0)
-            {
-                post.Up--;
-                await _context.SaveChangesAsync();
-                return new StateDto { Flag = true, Message = "Upvote decreased successfully." };
-            }
-
-            return new StateDto { Flag = false, Message = "Upvote is already at minimum." };
-        }
-
-        public async Task<StateDto> DecreaseDownvoteAsync(int postId)
-        {
-            var post = await _context.Posts.FindAsync(postId);
-            if (post == null)
-            {
-                return new StateDto { Flag = false, Message = "Post not found." };
-            }
-
-            if (post.Down > 0)
-            {
-                post.Down--;
-                await _context.SaveChangesAsync();
-                return new StateDto { Flag = true, Message = "Downvote decreased successfully." };
-            }
-
-            return new StateDto { Flag = false, Message = "Downvote is already at minimum." };
-        }
-
-        #endregion
 
     }
 }

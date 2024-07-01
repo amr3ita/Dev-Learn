@@ -16,13 +16,18 @@ namespace Code_Road.Controllers
             _authService = authService;
         }
 
-        // [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("GetAllUsers")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var users = await _authService.GetAllUsers();
-
-            return Ok(users);
+            if (ModelState.IsValid)
+            {
+                var users = await _authService.GetAllUsers();
+                if (users is null)
+                    return BadRequest("You Have Permission to Do That!!");
+                return Ok(users);
+            }
+            return BadRequest(ModelState);
         }
 
         [HttpPost("Register")]
@@ -68,6 +73,7 @@ namespace Code_Road.Controllers
             return Ok(user);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("AddUserToRole")]
         public async Task<IActionResult> AddUserToRoleAsync(AddUserToRoleDto model)
         {
@@ -94,6 +100,7 @@ namespace Code_Road.Controllers
             return Ok(status.Message);
 
         }
+
         [Authorize]
         [HttpPut("UpdateUSerName")]
         public async Task<IActionResult> UpdateUserName(string userName)
@@ -109,6 +116,7 @@ namespace Code_Road.Controllers
 
         }
 
+        [Authorize]
         [HttpPut("UpdatePassword")]
         public async Task<IActionResult> UpdatePasswordAsync(UpdatePasswordDto model)
         {
@@ -126,8 +134,8 @@ namespace Code_Road.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpDelete("AdminDeleteUser")]
         [Authorize(Roles = "Admin")]
+        [HttpDelete("AdminDeleteUser")]
         public async Task<IActionResult> DeleteUserAsync(string userEmail)
         {
 
@@ -140,8 +148,9 @@ namespace Code_Road.Controllers
             }
             return BadRequest(ModelState);
         }
-        [HttpDelete("DeleteUser")]
+
         [Authorize]
+        [HttpDelete("DeleteUser")]
         public async Task<IActionResult> DeleteUserAccountAsync()
         {
 
@@ -155,8 +164,8 @@ namespace Code_Road.Controllers
             return BadRequest(ModelState);
         }
 
-        [HttpGet("GetCurrentUser")]
         [Authorize]
+        [HttpGet("GetCurrentUser")]
         public async Task<IActionResult> GetCurrentUser()
         {
             try

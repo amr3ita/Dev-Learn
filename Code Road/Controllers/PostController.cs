@@ -1,6 +1,7 @@
 ﻿using Code_Road.Dto.Account;
 using Code_Road.Dto.Post;
 using Code_Road.Services.PostService;
+using Code_Road.Services.PostService.AuthService;
 using Code_Road.Services.VotesService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,12 +14,15 @@ namespace Code_Road.Controllers
     {
         private readonly IPostService _postService;
         private readonly IVoteService _voteService;
+        private readonly IAuthService _authService;
 
-        public PostController(IPostService postService, IVoteService voteService)
+        public PostController(IAuthService authService, IPostService postService, IVoteService voteService)
         {
             _postService = postService;
             _voteService = voteService;
+            _authService = authService;
         }
+
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -30,6 +34,7 @@ namespace Code_Road.Controllers
             return NotFound(new StateDto { Flag = false, Message = "No posts found" });
 
         }
+
         [HttpGet("userPosts/{userId}")]
         public async Task<IActionResult> GetAllByUserId(string userId)
         {
@@ -43,6 +48,7 @@ namespace Code_Road.Controllers
 
             return NotFound(new StateDto { Flag = false, Message = "No posts found for the specified user" });
         }
+
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
         {
@@ -51,15 +57,24 @@ namespace Code_Road.Controllers
                 return Ok(post);
             return NotFound(post.State.Message);
         }
+
+        [Authorize]
         [HttpPost("CreatePost")]
         public async Task<IActionResult> CreatePost([FromForm] AddPostDto postModel)
         {
-            var post = await _postService.AddPostAsync(postModel);
+            var currentUser = await _authService.GetCurrentUserAsync();
+            if (currentUser is not null)
+            {
+                var post = await _postService.AddPostAsync(currentUser, postModel);
 
-            if (post.Status.Flag)
-                return Ok(post);
-            return BadRequest(post.Status.Message);
+                if (post.Status.Flag)
+                    return Ok(post);
+                return BadRequest(post.Status.Message);
+            }
+            return BadRequest("Login First");
         }
+
+        [Authorize]
         [HttpPut("{post_id:int}")]
         public async Task<IActionResult> Update([FromRoute] int post_id, [FromForm] UpdatePostDto model)
         {
@@ -67,66 +82,37 @@ namespace Code_Road.Controllers
                 return BadRequest(ModelState);
             else
             {
-                var returned = await _postService.UpdatePostAsync(post_id, model);
+                var currentUser = await _authService.GetCurrentUserAsync();
+                var returned = await _postService.UpdatePostAsync(currentUser, post_id, model);
                 if (!returned.Status.Flag)
                     return BadRequest(returned.Status.Message);
                 return Ok(returned);
             }
         }
-        [HttpDelete]
-        public async Task<IActionResult> RemovePost(int id)
-        {
-            var state = await _postService.DeletePostAsync(id);
-            if (!state.Flag)
-            {
-                return BadRequest(state.Message);
-            }
-            return Ok(state.Message);
-        }
 
-        #region Up and Down aactions
-        [HttpPut("IncreaseUpvote/{postId}")]
-        public async Task<IActionResult> IncreaseUpvote(int postId)
+        //[Authorize]
+        [HttpGet("GetUpVotes/{postId:int}")]
+        public async Task<IActionResult> GetUpVotes(int postId)
         {
-            var result = await _postService.IncreaseUpvoteAsync(postId);
-            if (result.Flag)
-            {
-                return Ok(result.Message);
-            }
-            return BadRequest(result.Message);
-        }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var votes = await _postService.GetUpVotes(postId);
+            if (!votes[0].State.Flag)
+                return BadRequest(votes[0].State.Message);
+            return Ok(votes);
 
-        [HttpPut("IncreaseDownvote/{postId}")]
-        public async Task<IActionResult> IncreaseDownvote(int postId)
-        {
-            var result = await _postService.IncreaseDownvoteAsync(postId);
-            if (result.Flag)
-            {
-                return Ok(result.Message);
-            }
-            return BadRequest(result.Message);
         }
-
-        [HttpPut("DecreaseUpvote/{postId}")]
-        public async Task<IActionResult> DecreaseUpvote(int postId)
+        // [Authorize]
+        [HttpGet("GetDownVotes/{postId:int}")]
+        public async Task<IActionResult> GetDownVotes(int postId)
         {
-            var result = await _postService.DecreaseUpvoteAsync(postId);
-            if (result.Flag)
-            {
-                return Ok(result.Message);
-            }
-            return BadRequest(result.Message);
-        }
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+            var votes = await _postService.GetDownVotes(postId);
+            if (!votes[0].State.Flag)
+                return BadRequest(votes[0].State.Message);
+            return Ok(votes);
 
-        [HttpPut("DecreaseDownvote/{postId}")]
-        public async Task<IActionResult> DecreaseDownvote(int postId)
-        {
-            var result = await _postService.DecreaseDownvoteAsync(postId);
-            if (result.Flag)
-            {
-                return Ok(result.Message);
-            }
-            return BadRequest(result.Message);
         }
 
         [Authorize]
@@ -141,7 +127,18 @@ namespace Code_Road.Controllers
             return Ok(state);
         }
 
-        #endregion
+        [Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> RemovePost(int id)
+        {
+            var currentUser = await _authService.GetCurrentUserAsync();
+            var state = await _postService.DeletePostAsync(currentUser, id);
+            if (!state.Flag)
+            {
+                return BadRequest(state.Message);
+            }
+            return Ok(state.Message);
+        }
 
 
     }
