@@ -179,10 +179,6 @@ namespace Code_Road.Services.UserService
             Quiz? quiz = await _context.Quizzes.Where(l => l.LessonId == lessonId).FirstOrDefaultAsync();
             if (quiz is null) return state;
             state = await UpdateDegree(userId, lessonId, degree, quiz);
-            //if (state.Flag) return state;
-            //state.Message = "oops.You Failed";
-            //if (degree < (quiz.TotalDegree * .6) || degree < 0 || degree >= quiz.TotalDegree)
-            //    return state;
             state.Flag = true;
             state.Message = "Congratulation,You Successed";
             FinishedLessons finishedLesson = new FinishedLessons { UserId = userId, LessonId = lessonId, Degree = degree };
@@ -227,7 +223,7 @@ namespace Code_Road.Services.UserService
         {
             StateDto state = await CheckUserId(userId);
 
-            if (!state.Flag) return 0;
+            if (!state.Flag) return 1;
             var user = await _user.FindByIdAsync(userId);
             if (((DateTime.Now.Day) != (user.ActiceDay.Day)))
             {
@@ -239,13 +235,11 @@ namespace Code_Road.Services.UserService
                     await _user.UpdateAsync(user);
                     return user.OnlineDays;
                 }
-                user.OnlineDays = 0;
+                user.OnlineDays = 1;
                 user.ActiceDay = DateTime.Now;
                 await _user.UpdateAsync(user);
-                return 0;
-                {
+                return 1;
 
-                }
             }
             return user.OnlineDays;
         }
