@@ -5,7 +5,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Code_Road</RootNamespace>
-    <UserSecretsId>720bfeb6-022e-4c6b-b0fc-ffe0569a1d7c</UserSecretsId>
+
+    <UserSecretsId>bc7271fa-b891-44a4-bcc1-f06a5512181d</UserSecretsId>
+
   </PropertyGroup>
 
   <ItemGroup>

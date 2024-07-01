@@ -159,9 +159,20 @@ namespace Code_Road.Services.UserService
             finishedLessons.Count = lessons.Count;
             foreach (var lesson in lessons)
             {
-                int quizid = ((await _context.Quizzes.FirstOrDefaultAsync(c => c.LessonId == lesson.LessonId)).Id);
-                string finishedLessonName = await CheckLessonId(lesson.LessonId);
-                finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, QuizId = quizid, Degree = lesson.Degree });
+                if ((await _context.Quizzes.FirstOrDefaultAsync(c => c.LessonId == lesson.LessonId)) == null)
+                {
+                    string finishedLessonName = await CheckLessonId(lesson.LessonId);
+                    finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, QuizId = 0, Degree = lesson.Degree });
+
+                }
+                else
+                {
+                    int quizid = (await _context.Quizzes.FirstOrDefaultAsync(c => c.LessonId == lesson.LessonId)).Id;
+                    string finishedLessonName = await CheckLessonId(lesson.LessonId);
+                    finishedLessons.FinishedLessons.Add(new FinishedLessonDetailsDto() { LessonName = finishedLessonName, QuizId = quizid, Degree = lesson.Degree });
+                }
+
+
             }
             return finishedLessons;
         }

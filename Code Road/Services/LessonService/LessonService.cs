@@ -60,19 +60,20 @@ namespace Code_Road.Services.LessonService
 
                 return new LessonDto()
                 {
-
+                    LessonId = lesson.Id,
                     Explanation = lesson.Explanation,
                     Name = lesson.Name,
                     Level = lesson.Level,
                     Topic = lesson.topic.Name,
                     Img = await _context.Image.Where(l => l.LessonId == id).Select(i => i.ImageUrl).ToListAsync(),
-                    QuizId = null,
+                    QuizId = 0,
                     State = state
                 };
             }
 
             return new LessonDto()
             {
+                LessonId = id,
                 Explanation = lesson.Explanation,
                 Name = lesson.Name,
                 Level = lesson.Level,
@@ -92,16 +93,34 @@ namespace Code_Road.Services.LessonService
                 state.Message = "there is no Lesson with this Name";
                 return new LessonDto() { State = state };
             }
+            if ((await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)) == null)
+            {
+
+                return new LessonDto()
+                {
+                    LessonId = lesson.Id,
+                    Explanation = lesson.Explanation,
+                    Name = lesson.Name,
+                    Level = lesson.Level,
+                    Topic = lesson.topic.Name,
+                    Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
+                    QuizId = 0,
+                    State = state
+                };
+            }
+
             return new LessonDto()
             {
+                LessonId = lesson.Id,
                 Explanation = lesson.Explanation,
                 Name = lesson.Name,
                 Level = lesson.Level,
                 Topic = lesson.topic.Name,
                 Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
-                QuizId = lesson.Quiz.Id,
+                QuizId = (await _context.Quizzes.FirstOrDefaultAsync(l => l.LessonId == lesson.Id)).Id,
                 State = state
             };
+
         }
         public async Task<List<LessonDto>> GetLessonAddedByUser(string userId)
         {
@@ -121,12 +140,13 @@ namespace Code_Road.Services.LessonService
             {
                 returnedLessons.Add(new LessonDto()
                 {
+                    LessonId = lesson.Id,
                     Explanation = lesson.Explanation,
                     Name = lesson.Name,
                     Level = lesson.Level,
                     Topic = lesson.topic.Name,
                     Img = await _context.Image.Where(l => l.LessonId == lesson.Id).Select(i => i.ImageUrl).ToListAsync(),
-                    QuizId = (lesson.Quiz.Id == null) ? 0 : lesson.Quiz.Id,
+                    QuizId = (lesson.Quiz == null) ? 0 : lesson.Quiz.Id,
                     State = state
                 });
             }
@@ -168,7 +188,7 @@ namespace Code_Road.Services.LessonService
         }
         public async Task<LessonDto> UpdateLessonById(int id, EditLessonDto model)
         {
-            Lesson? oldLesson = await _context.Lessons.FirstOrDefaultAsync(l => l.Id == id);
+            Lesson? oldLesson = await _context.Lessons.Include(t => t.topic).FirstOrDefaultAsync(l => l.Id == id);
             StateDto state = new StateDto() { Flag = false };
             state.Message = "There is no Lesson with this id";
             if (oldLesson is null)
@@ -181,14 +201,14 @@ namespace Code_Road.Services.LessonService
             Topic? topic = await _context.Topics.FirstOrDefaultAsync(t => t.Name == model.TopicName);
             if (topic is null)
                 return new LessonDto() { State = state };
-            List<Image> images = await ChangeDirctoryName(oldLesson.Id, oldLesson.Name, oldLesson.topic.Name, model.Name, model.TopicName);
+            List<Image> images = await ChangeDirctoryName(oldLesson.Id, oldLesson.Name, oldLesson.topic.Name, model.Name, topic.Name);
             oldLesson.Name = model.Name;
             oldLesson.Level = model.Level;
             oldLesson.Explanation = model.Explanation;
             oldLesson.TopicId = topic.Id;
             if (images is not null)
                 oldLesson.Images = images;
-
+            _context.Update(oldLesson);
             await _context.SaveChangesAsync();
             return await GetLessonById(oldLesson.Id);
         }
@@ -207,7 +227,7 @@ namespace Code_Road.Services.LessonService
                 _context.Image.RemoveRange(images);
                 await DeleteImageFile(oldLesson.topic.Name, oldLesson.Name);
             }
-            Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.Id == q.LessonId);
+            Quiz? quiz = await _context.Quizzes.FirstOrDefaultAsync(q => q.LessonId == id);
             if (quiz is not null)
             {
                 await _quizService.DeleteQuiz(quiz.Id);
@@ -220,7 +240,7 @@ namespace Code_Road.Services.LessonService
 
             }
 
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             state.Flag = true;
             state.Message = "Deleted Successfully";
             return state;
