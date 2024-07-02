@@ -24,7 +24,7 @@ namespace Code_Road.Controllers
             {
                 var users = await _authService.GetAllUsers();
                 if (users is null)
-                    return Unauthorized("You Have Permission to Do That!!");
+                    return Ok("You Have Permission to Do That!!");
                 return Ok(users);
             }
             return BadRequest(ModelState);

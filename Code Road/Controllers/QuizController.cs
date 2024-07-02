@@ -75,7 +75,7 @@ namespace Code_Road.Controllers
                         return Ok(status.Message);
                     return Ok(status.Message);
                 }
-                return Unauthorized("You don't have permission to delete this quiz");
+                return Ok("You don't have permission to delete this quiz");
             }
             return BadRequest(ModelState);
         }
