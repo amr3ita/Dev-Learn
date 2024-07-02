@@ -214,20 +214,32 @@ namespace Code_Road.Services.PostService
             var del_post = await _context.Posts.FirstOrDefaultAsync(p => p.Id == post_id);
             if (currentUser.IsAdmin == true || del_post.UserId == currentUser.userInfo.Id)
             {
+                // delete comments
+                var comments = await _context.Comments.Where(c => c.PostId == post_id).ToListAsync();
+                foreach (var comment in comments)
+                {
+                    // delete comments votes
+                    var commentVotes = await _context.Comments_Vote.Where(cv => cv.CommentId == comment.Id).ToListAsync();
+                    _context.Comments_Vote.RemoveRange(commentVotes);
+                    await _context.SaveChangesAsync();
+                }
+                _context.Comments.RemoveRange(comments);
+                await _context.SaveChangesAsync();
+                // delete post votes
+                var postVotes = await _context.Posts_Vote.Where(pv => pv.PostId == post_id).ToListAsync();
+                _context.Posts_Vote.RemoveRange(postVotes);
+                await _context.SaveChangesAsync();
+
                 List<Image> images = await _context.Image.Where(p => p.PostId == post_id).ToListAsync();
                 if (del_post != null)
                 {
                     if (images.Count > 0)
                     {
-
                         foreach (var image in images)
                         {
-
                             await DeletImage(del_post.Id);
-
                         }
                         _context.Image.RemoveRange(images);
-
                     }
                     _context.Posts.Remove(del_post);
 

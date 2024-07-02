@@ -24,7 +24,7 @@ namespace Code_Road.Controllers
             {
                 var users = await _authService.GetAllUsers();
                 if (users is null)
-                    return BadRequest("You Have Permission to Do That!!");
+                    return Unauthorized("You Have Permission to Do That!!");
                 return Ok(users);
             }
             return BadRequest(ModelState);
@@ -39,7 +39,7 @@ namespace Code_Road.Controllers
             AuthDto user = await _authService.RegisterAsync(model, Request.Scheme);
 
             if (!user.Status.Flag)
-                return BadRequest(user.Status.Message);
+                return Ok(user.Status.Message);
 
             return Ok(user);
         }
@@ -55,7 +55,6 @@ namespace Code_Road.Controllers
             }
             else
             {
-                // Handle email verification failure
                 return BadRequest("Email verification failed");
             }
         }
@@ -68,7 +67,7 @@ namespace Code_Road.Controllers
 
             AuthDto user = await _authService.LoginAsync(model);
             if (!user.Status.Flag)
-                return BadRequest(user.Status.Message);
+                return Ok(user.Status.Message);
 
             return Ok(user);
         }
@@ -81,7 +80,7 @@ namespace Code_Road.Controllers
                 return BadRequest(ModelState);
             StateDto state = await _authService.AddUserToRoleAsync(model);
             if (!state.Flag)
-                return BadRequest(state.Message);
+                return Ok(state.Message);
 
             return Ok(state.Message);
         }
@@ -96,7 +95,7 @@ namespace Code_Road.Controllers
             }
             StateDto status = await _authService.UpdateName(FirstName, LastName);
             if (!status.Flag)
-                return BadRequest(status.Message);
+                return Ok(status.Message);
             return Ok(status.Message);
 
         }
@@ -111,7 +110,7 @@ namespace Code_Road.Controllers
             }
             StateDto status = await _authService.UpdateUserName(userName);
             if (!status.Flag)
-                return BadRequest(status.Message);
+                return Ok(status.Message);
             return Ok(status.Message);
 
         }
@@ -127,9 +126,9 @@ namespace Code_Road.Controllers
                     StateDto status = await _authService.UpdatePassword(model);
                     if (status.Flag)
                         return Ok(status.Message);
-                    return BadRequest(status.Message);
+                    return Ok(status.Message);
                 }
-                return BadRequest("Old Password and New Password Should be Different");
+                return Ok("Old Password and New Password Should be Different");
             }
             return BadRequest(ModelState);
         }
@@ -144,7 +143,7 @@ namespace Code_Road.Controllers
                 StateDto status = await _authService.DeleteUser(userEmail);
                 if (status.Flag)
                     return Ok(new { Message = status.Message });
-                return BadRequest(status.Message);
+                return Ok(status.Message);
             }
             return BadRequest(ModelState);
         }
@@ -159,7 +158,7 @@ namespace Code_Road.Controllers
                 StateDto status = await _authService.DeleteUserAccount();
                 if (status.Flag)
                     return Ok(new { Message = status.Message });
-                return BadRequest(status.Message);
+                return Ok(status.Message);
             }
             return BadRequest(ModelState);
         }
@@ -171,7 +170,6 @@ namespace Code_Road.Controllers
             try
             {
                 var user = await _authService.GetCurrentUserAsync();
-                //return Ok(new { Name = $"{user.FirstName + " " + user.LastName}", Email = user.Email });
                 return Ok(user);
 
             }

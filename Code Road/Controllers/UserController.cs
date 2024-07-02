@@ -28,10 +28,11 @@ namespace Code_Road.Controllers
             if (followeres.State is not null)
             {
                 if (!followeres.State.Flag)
-                    return BadRequest(followeres);
+                    return Ok(followeres);
             }
             return Ok(followeres);
         }
+
         [Authorize]
         [HttpGet("GetAllFollowing")]
         public async Task<IActionResult> GetAllFollowing()
@@ -39,11 +40,11 @@ namespace Code_Road.Controllers
             string userId = await getLogginUserId();
             FollowingDto? followeres = await _userService.GetAllFollowing(userId);
             if (followeres is null)
-                return BadRequest("SomeThing went wrong");
+                return Ok("SomeThing went wrong");
             if (followeres.State is not null)
             {
                 if (!followeres.State.Flag)
-                    return BadRequest(followeres);
+                    return Ok(followeres);
             }
             return Ok(followeres);
         }
@@ -55,9 +56,10 @@ namespace Code_Road.Controllers
             string followerId = await getLogginUserId();
             StateDto follower = await _userService.Follow(followerId, followingId);
             if (!follower.Flag)
-                return BadRequest(follower);
+                return Ok(follower);
             return Ok(follower);
         }
+
         [Authorize]
         [HttpPost("UnFollow")]
         public async Task<IActionResult> UnFollow(string followingId)
@@ -66,10 +68,11 @@ namespace Code_Road.Controllers
             StateDto follower = await _userService.UnFollow(followerId, followingId);
 
             if (!follower.Flag)
-                return BadRequest(follower);
+                return Ok(follower);
             return Ok(follower);
         }
         #endregion
+
         #region FinishedLesson
         [Authorize]
         [HttpGet("GetFinishedLessonsForSpecificUser")]
@@ -80,10 +83,11 @@ namespace Code_Road.Controllers
             if (finishedLessons.State is not null)
             {
                 if (!finishedLessons.State.Flag)
-                    return BadRequest(finishedLessons);
+                    return Ok(finishedLessons);
             }
             return Ok(finishedLessons);
         }
+
         [Authorize]
         [HttpPost("FinishNewLesson")]
         public async Task<IActionResult> FinishLesson(int lessonId, int degree)
@@ -93,6 +97,7 @@ namespace Code_Road.Controllers
             return Ok(state);
         }
         #endregion
+
         #region User Image
         [HttpGet("GetUserImage")]
         public async Task<IActionResult> GetUserImage(string userId)
@@ -100,9 +105,10 @@ namespace Code_Road.Controllers
             string image = await _userService.GetUserImage(userId);
             if (ModelState.IsValid)
                 return Ok(image);
-            return BadRequest(image);
 
+            return BadRequest(ModelState);
         }
+
         [Authorize]
         [HttpPost("UpdateUserImage")]
         public async Task<IActionResult> UpdateUserImage([FromForm] IFormFile image)
@@ -111,9 +117,10 @@ namespace Code_Road.Controllers
             StateDto state = await _userService.UpdateUserImage(userId, image);
             if (state.Flag)
                 return Ok(state);
-            return BadRequest(state);
+            return Ok(state);
 
         }
+
         [Authorize]
         [HttpDelete("DeleteUserImage")]
         public async Task<IActionResult> DeleteUserImage()
@@ -122,12 +129,13 @@ namespace Code_Road.Controllers
             StateDto state = await _userService.DeleteUserImage(userId);
             if (state.Flag)
                 return Ok(state);
-            return BadRequest(state);
+            return Ok(state);
 
         }
         #endregion
-        [HttpGet("getUSerActiveDays")]
+
         [Authorize]
+        [HttpGet("getUSerActiveDays")]
         public async Task<IActionResult> getUSerActiveDays()
         {
             string userId = await getLogginUserId();

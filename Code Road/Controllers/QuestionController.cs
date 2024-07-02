@@ -24,7 +24,7 @@ namespace Code_Road.Controllers
             {
                 return Ok(QuestionDetails);
             }
-            return BadRequest(QuestionDetails.Status.Message);
+            return Ok(QuestionDetails.Status.Message);
         }
 
         [HttpPost("GetQuizQuestions/{QuizId:int}")]
@@ -37,7 +37,7 @@ namespace Code_Road.Controllers
                 {
                     return Ok(QuestionDetails);
                 }
-                return BadRequest(QuestionDetails.Status.Message);
+                return Ok(QuestionDetails.Status.Message);
 
             }
             return BadRequest(ModelState);
@@ -51,7 +51,7 @@ namespace Code_Road.Controllers
                 StateDto status = await _questionService.AddQuestion(QuizId, model);
                 if (status.Flag)
                     return Ok(status.Message);
-                return BadRequest(status.Message);
+                return Ok(status.Message);
             }
             return BadRequest(ModelState);
         }
@@ -66,7 +66,7 @@ namespace Code_Road.Controllers
                 {
                     return Ok(status.Message);
                 }
-                return BadRequest(status.Message);
+                return Ok(status.Message);
             }
             return BadRequest(ModelState);
         }
@@ -79,7 +79,7 @@ namespace Code_Road.Controllers
                 StateDto status = await _questionService.DeleteQuestion(QuestionId);
                 if (status.Flag)
                     return Ok(status.Message); // deleted successfully
-                return BadRequest(status.Message); // if question not found
+                return Ok(status.Message); // if question not found
             }
             return BadRequest(ModelState);
         }
@@ -92,7 +92,7 @@ namespace Code_Road.Controllers
                 StateDto status = await _questionService.DeleteAllQuizQuestions(QuizId);
                 if (status.Flag)
                     return Ok(status.Message);
-                return BadRequest(status.Message);
+                return Ok(status.Message);
             }
             return BadRequest(ModelState);
         }

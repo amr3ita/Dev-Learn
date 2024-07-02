@@ -28,7 +28,7 @@ namespace Code_Road.Controllers
             if (quizzes is not null)
                 return Ok(new { Message = $"There is {quizzes.Count} quizzes", Quizzes = quizzes });
 
-            return BadRequest("Ther is no quizzes");
+            return Ok("Ther is no quizzes");
         }
 
         [Authorize]
@@ -40,7 +40,7 @@ namespace Code_Road.Controllers
                 GetQuizDetailsDto quizDetails = await _quizService.GetQuizWithId(QuizId);
                 if (quizDetails is not null)
                     return Ok(quizDetails);
-                return BadRequest($"There is no quiz with id {QuizId}");
+                return Ok($"There is no quiz with id {QuizId}");
             }
             return BadRequest(ModelState);
         }
@@ -56,7 +56,7 @@ namespace Code_Road.Controllers
                 {
                     return Ok(await _quizService.AddQuiz(model));
                 }
-                return BadRequest("You don't have permission to create quiz");
+                return Ok("You don't have permission to create quiz");
             }
             return BadRequest(ModelState);
         }
@@ -73,9 +73,9 @@ namespace Code_Road.Controllers
                     StateDto status = await _quizService.DeleteQuiz(QuizId);
                     if (status.Flag)
                         return Ok(status.Message);
-                    return BadRequest(status.Message);
+                    return Ok(status.Message);
                 }
-                return BadRequest("You don't have permission to delete this quiz");
+                return Unauthorized("You don't have permission to delete this quiz");
             }
             return BadRequest(ModelState);
         }

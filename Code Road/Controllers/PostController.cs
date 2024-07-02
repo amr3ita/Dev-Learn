@@ -31,7 +31,7 @@ namespace Code_Road.Controllers
             if (posts is not null)
                 return Ok(posts);
 
-            return NotFound(new StateDto { Flag = false, Message = "No posts found" });
+            return Ok(new StateDto { Flag = false, Message = "No posts found" });
 
         }
 
@@ -42,7 +42,7 @@ namespace Code_Road.Controllers
             var posts = await _postService.GetAllByUserIdAsync(userId);
             if (posts.Count > 0)
             {
-                if (!posts[0].Status.Flag) return BadRequest(posts[0].Status.Message);
+                if (!posts[0].Status.Flag) return Ok(posts[0].Status.Message);
                 return Ok(posts);
             }
 
@@ -55,7 +55,7 @@ namespace Code_Road.Controllers
             var post = await _postService.GetByIdAsync(id);
             if (post.State.Flag)
                 return Ok(post);
-            return NotFound(post.State.Message);
+            return Ok(post.State.Message);
         }
 
         [Authorize]
@@ -69,7 +69,7 @@ namespace Code_Road.Controllers
 
                 if (post.Status.Flag)
                     return Ok(post);
-                return BadRequest(post.Status.Message);
+                return Ok(post.Status.Message);
             }
             return BadRequest("Login First");
         }
@@ -85,7 +85,7 @@ namespace Code_Road.Controllers
                 var currentUser = await _authService.GetCurrentUserAsync();
                 var returned = await _postService.UpdatePostAsync(currentUser, post_id, model);
                 if (!returned.Status.Flag)
-                    return BadRequest(returned.Status.Message);
+                    return Ok(returned.Status.Message);
                 return Ok(returned);
             }
         }
@@ -98,10 +98,11 @@ namespace Code_Road.Controllers
                 return BadRequest(ModelState);
             var votes = await _postService.GetUpVotes(postId);
             if (!votes[0].State.Flag)
-                return BadRequest(votes[0].State.Message);
+                return Ok(votes[0].State.Message);
             return Ok(votes);
 
         }
+
         // [Authorize]
         [HttpGet("GetDownVotes/{postId:int}")]
         public async Task<IActionResult> GetDownVotes(int postId)
@@ -110,7 +111,7 @@ namespace Code_Road.Controllers
                 return BadRequest(ModelState);
             var votes = await _postService.GetDownVotes(postId);
             if (!votes[0].State.Flag)
-                return BadRequest(votes[0].State.Message);
+                return Ok(votes[0].State.Message);
             return Ok(votes);
 
         }
@@ -123,7 +124,7 @@ namespace Code_Road.Controllers
                 return BadRequest(ModelState);
             StateDto state = await _voteService.PostVote(postId, vote);
             if (!state.Flag)
-                return BadRequest(state.Message);
+                return Ok(state.Message);
             return Ok(state);
         }
 
@@ -135,7 +136,7 @@ namespace Code_Road.Controllers
             var state = await _postService.DeletePostAsync(currentUser, id);
             if (!state.Flag)
             {
-                return BadRequest(state.Message);
+                return Ok(state.Message);
             }
             return Ok(state.Message);
         }
