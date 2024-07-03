@@ -396,7 +396,7 @@ namespace Code_Road.Services.PostService.AuthService
             try
             {
                 // Delete related data
-                await DeleteUserRelatedDataAsync(user.Id);
+                await DeleteUserRelatedDataAsync(user);
 
                 // Delete user from role and delete user
                 var result = await _userManager.RemoveFromRoleAsync(user, "User");
@@ -442,7 +442,7 @@ namespace Code_Road.Services.PostService.AuthService
             try
             {
                 // Delete related data
-                await DeleteUserRelatedDataAsync(currentUser.Id);
+                await DeleteUserRelatedDataAsync(currentUser);
 
                 // Delete user from role and delete user
                 var result = await _userManager.RemoveFromRolesAsync(currentUser, new List<string> { "User", "Admin" });
@@ -469,19 +469,35 @@ namespace Code_Road.Services.PostService.AuthService
                 return status;
             }
         }
-        private async Task DeleteUserRelatedDataAsync(string userId)
+        private async Task DeleteUserRelatedDataAsync(ApplicationUser user)
         {
+            var userId = user.Id;
             // Delete comment Votes
             _context.Comments_Vote.RemoveRange(await _context.Comments_Vote.Where(cv => cv.UserId == userId).ToListAsync());
             // Delete comments
             _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == userId).ToListAsync());
+            // Delete posts votes
+            _context.Posts_Vote.RemoveRange(await _context.Posts_Vote.Where(p => p.UserId == userId).ToListAsync());
             // Delete posts
             _context.Posts.RemoveRange(await _context.Posts.Where(p => p.UserId == userId).ToListAsync());
             // Delete finished lessons
             _context.FinishedLessons.RemoveRange(await _context.FinishedLessons.Where(fl => fl.UserId == userId).ToListAsync());
             // Delete images
             _context.Image.RemoveRange(await _context.Image.Where(i => i.UserId == userId).ToListAsync());
+            var httpContext = _httpContextAccessor.HttpContext;
+            string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
 
+            string filepath = _environment.WebRootPath + "\\Upload\\User\\" + user.UserName;
+            if (!Directory.Exists(filepath))
+            {
+                Directory.CreateDirectory(filepath);
+            }
+
+            string imgpath = Path.Combine(filepath, $"{user.UserName}.png");
+            if (File.Exists(imgpath))
+            {
+                File.Delete(imgpath);
+            }
             // Unfollow users this user follows
             var followers = await _userService.GetAllFollowers(userId);
             foreach (var follower in followers.FollowersList)
