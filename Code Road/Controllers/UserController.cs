@@ -142,6 +142,14 @@ namespace Code_Road.Controllers
             int days = await _userService.ActiveDays(userId);
             return Ok(days);
         }
+        [HttpGet("GetUserById")]
+        public async Task<IActionResult> GetUserByID(string id)
+        {
+            var userInfo = await _userService.GetUserById(id);
+            if (userInfo == null) return BadRequest("user In Valid");
+            if (!userInfo.UserInfo.State.Flag) return Ok(userInfo.UserInfo.State.Message);
+            return Ok(userInfo);
+        }
         private async Task<string> getLogginUserId()
         {
             string id = HttpContext.User.FindFirstValue("uid") ?? "NA";

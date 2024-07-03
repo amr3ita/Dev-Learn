@@ -513,7 +513,7 @@ namespace Code_Road.Services.PostService.AuthService
             user.userInfo = await _userManager.FindByIdAsync(id);
             user.IsAdmin = await _userManager.IsInRoleAsync(user.userInfo, "Admin");
             // get posts for this user
-            user.posts = await _postService.GetAllByUserIdAsync(user.userInfo.Id);
+            user.posts = await _userService.GetAllByUserIdAsync(user.userInfo.Id);
 
             // get finished lessons for this user
             var finishedLessons = await _userService.GetFinishedLessonsForSpecificUser(user.userInfo.Id);
