@@ -445,7 +445,7 @@ namespace Code_Road.Services.PostService.AuthService
                 await DeleteUserRelatedDataAsync(currentUser.Id);
 
                 // Delete user from role and delete user
-                var result = await _userManager.RemoveFromRoleAsync(currentUser, "User");
+                var result = await _userManager.RemoveFromRolesAsync(currentUser, new List<string> { "User", "Admin" });
                 if (result.Succeeded)
                 {
                     result = await _userManager.DeleteAsync(currentUser);
