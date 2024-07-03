@@ -50,7 +50,7 @@ namespace Code_Road.Controllers
 
         [Authorize]
         [HttpPost("AddTopic/{name:alpha}")]
-        public async Task<IActionResult> AddTopic(string name)
+        public async Task<IActionResult> AddTopic([FromBody] string name)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
