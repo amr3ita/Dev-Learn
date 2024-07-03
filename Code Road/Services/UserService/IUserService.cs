@@ -1,4 +1,5 @@
 ﻿using Code_Road.Dto.Account;
+using Code_Road.Dto.Post;
 using Code_Road.Dto.User;
 
 namespace Code_Road.Services.UserService
@@ -15,6 +16,8 @@ namespace Code_Road.Services.UserService
         Task<StateDto> DeleteUserImage(string userId);
         public Task<string> GetUserImage(string userId);
         public Task<int> ActiveDays(string userId);
+        Task<UserProfileDto> GetUserById(string id);
+        Task<List<PostDto>> GetAllByUserIdAsync(string user_id);
 
     }
 }

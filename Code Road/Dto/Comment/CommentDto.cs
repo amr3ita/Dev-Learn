@@ -7,6 +7,7 @@ namespace Code_Road.Dto.Comment
     {
         public StateDto? State { get; set; }
         public int? Id { get; set; }
+        public string? UserId { get; set; }
         public string? UserName { get; set; }
         public string? UserImage { get; set; }
         [Required]

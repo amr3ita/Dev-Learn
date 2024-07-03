@@ -1,4 +1,5 @@
 ﻿using Code_Road.Dto.Account;
+using Code_Road.Dto.Post;
 using Code_Road.Dto.User;
 using Code_Road.Models;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +20,7 @@ namespace Code_Road.Services.UserService
             _user = user;
             _environment = environment;
             _httpContextAccessor = httpContextAccessor;
+
         }
         public async Task<FollowersDto> GetAllFollowers(string id)
         {
@@ -253,6 +255,62 @@ namespace Code_Road.Services.UserService
 
             }
             return user.OnlineDays;
+        }
+        public async Task<UserProfileDto> GetUserById(string id)
+        {
+            StateDto userState = await CheckUserId(id);
+            UserProfileDto profileInfo = new UserProfileDto();
+            if (!userState.Flag) return null;
+            ApplicationUser? user = await _user.FindByIdAsync(id);
+            profileInfo.UserInfo.State = new StateDto { Flag = true, Message = "done" };
+            profileInfo.UserInfo.UserId = id;
+            profileInfo.UserInfo.UserName = user.UserName;
+            profileInfo.UserInfo.ImageUrl = await GetUserImage(id);
+            profileInfo.Posts = await GetAllByUserIdAsync(id);
+            if (profileInfo.Posts.Count == 0)
+            {
+                profileInfo.UserInfo.State = new StateDto { Flag = false, Message = "User Don't Have Posts" }; ;
+
+            }
+            return profileInfo;
+
+        }
+        public async Task<List<PostDto>> GetAllByUserIdAsync(string user_id)
+        {
+            if (await _user.FindByIdAsync(user_id) is null)
+                return new List<PostDto> { new PostDto { Status = new StateDto { Flag = false, Message = "user invalid" } } };
+            var today = DateTime.Today;
+            var posts = await _context.Posts
+               .Include(p => p.Images)
+               .Include(p => p.User)
+               .Where(p => p.UserId == user_id)
+               .Select(p => new PostDto
+               {
+                   Status = new StateDto { Flag = true, Message = "Success" },
+                   PostId = p.Id,
+                   UserId = p.UserId,
+                   UserImage = p.User.Image.ImageUrl,
+                   UserName = p.User.FirstName + " " + p.User.LastName,
+                   Content = p.Content,
+                   Up = p.Up,
+                   Down = p.Down,
+                   Date = p.Date,
+                   Image_url = p.Images.Where(i => i.UserId == p.User.Id && i.PostId == p.Id).Select(i => i.ImageUrl).ToList()
+               })
+               .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
+               .ThenByDescending(p => p.Date.Date) // Then by date 
+              .ToListAsync();
+            //Posts Not Found
+            if (posts is null)
+            {
+                return null;
+            }
+            if (posts.Count > 0)
+            {
+                posts[0].UserId = user_id;
+                posts[0].UserImage = await GetUserImage(user_id);
+            }
+            return posts;
         }
         #region Private
         private async Task<StateDto> GetImagePath(IFormFile image, string userId)

@@ -44,41 +44,7 @@ namespace Code_Road.Services.PostService
             return posts;
         }
 
-        public async Task<List<PostDto>> GetAllByUserIdAsync(string user_id)
-        {
-            if (await _userManager.FindByIdAsync(user_id) is null)
-                return new List<PostDto> { new PostDto { Status = new StateDto { Flag = false, Message = "user invalid" } } };
-            var today = DateTime.Today;
-            var posts = await _context.Posts
-               .Include(p => p.Images)
-               .Include(p => p.User)
-               .Where(p => p.UserId == user_id)
-               .Select(p => new PostDto
-               {
-                   Status = new StateDto { Flag = true, Message = "Success" },
-                   PostId = p.Id,
-                   UserName = p.User.FirstName + " " + p.User.LastName,
-                   Content = p.Content,
-                   Up = p.Up,
-                   Down = p.Down,
-                   Date = p.Date,
-                   Image_url = p.Images.Where(i => i.UserId == p.User.Id && i.PostId == p.Id).Select(i => i.ImageUrl).ToList()
-               })
-               .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
-               .ThenByDescending(p => p.Date.Date) // Then by date 
-              .ToListAsync();
-            //Posts Not Found
-            if (posts is null)
-            {
-                return null;
-            }
-            if (posts.Count > 0)
-            {
-                posts[0].UserId = user_id;
-                posts[0].UserImage = await _userService.GetUserImage(user_id);
-            }
-            return posts;
-        }
+
 
         public async Task<PostAndCommentsDto> GetByIdAsync(int post_id)
         {
@@ -114,7 +80,7 @@ namespace Code_Road.Services.PostService
             pcd.State = state;
             pcd.post = postDto;
 
-            pcd.Comments = await _context.Comments.Include(d => d.User).Where(c => c.PostId == post.Id).Select(cs => new CommentDto { Id = cs.Id, UserName = cs.User.UserName, Content = cs.Content, Up = cs.Up, Down = cs.Down, Date = cs.Date }).ToListAsync();
+            pcd.Comments = await _context.Comments.Include(d => d.User).Where(c => c.PostId == post.Id).Select(cs => new CommentDto { Id = cs.Id, UserId = cs.UserId, UserName = cs.User.UserName, UserImage = cs.User.Image.ImageUrl, Content = cs.Content, Up = cs.Up, Down = cs.Down, Date = cs.Date }).ToListAsync();
 
             return pcd;
         }

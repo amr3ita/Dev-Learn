@@ -35,19 +35,19 @@ namespace Code_Road.Controllers
 
         }
 
-        [HttpGet("userPosts/{userId}")]
-        public async Task<IActionResult> GetAllByUserId(string userId)
-        {
+        //[HttpGet("userPosts/{userId}")]
+        //public async Task<IActionResult> GetAllByUserId(string userId)
+        //{
 
-            var posts = await _postService.GetAllByUserIdAsync(userId);
-            if (posts.Count > 0)
-            {
-                if (!posts[0].Status.Flag) return Ok(posts[0].Status.Message);
-                return Ok(posts);
-            }
+        //    var posts = await _postService.GetAllByUserIdAsync(userId);
+        //    if (posts.Count > 0)
+        //    {
+        //        if (!posts[0].Status.Flag) return Ok(posts[0].Status.Message);
+        //        return Ok(posts);
+        //    }
 
-            return NotFound(new StateDto { Flag = false, Message = "No posts found for the specified user" });
-        }
+        //    return NotFound(new StateDto { Flag = false, Message = "No posts found for the specified user" });
+        //}
 
         [HttpGet("{id:int}")]
         public async Task<IActionResult> GetById([FromRoute] int id)
