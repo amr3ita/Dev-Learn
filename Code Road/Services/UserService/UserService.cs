@@ -1,4 +1,5 @@
 ﻿using Code_Road.Dto.Account;
+using Code_Road.Dto.Comment;
 using Code_Road.Dto.Post;
 using Code_Road.Dto.User;
 using Code_Road.Models;
@@ -262,11 +263,18 @@ namespace Code_Road.Services.UserService
             UserProfileDto profileInfo = new UserProfileDto();
             if (!userState.Flag) return null;
             ApplicationUser? user = await _user.FindByIdAsync(id);
+
             profileInfo.UserInfo.State = new StateDto { Flag = true, Message = "done" };
             profileInfo.UserInfo.UserId = id;
             profileInfo.UserInfo.UserName = user.UserName;
             profileInfo.UserInfo.ImageUrl = await GetUserImage(id);
-            profileInfo.Posts = await GetAllByUserIdAsync(id);
+            var Posts = await GetAllByUserIdAsync(id);
+            foreach (var post in Posts)
+            {
+                var comment = await _context.Comments.Where(c => c.PostId == post.PostId)
+                    .Select(cd => new CommentDto { Id = cd.Id, UserId = cd.UserId, UserName = cd.User.UserName, UserImage = cd.User.Image.ImageUrl, Content = cd.Content, Up = cd.Up, Down = cd.Down, Date = cd.Date }).ToListAsync();
+                profileInfo.Posts.Add(new PostAndCommentsDto { post = post, Comments = comment });
+            }
             if (profileInfo.Posts.Count == 0)
             {
                 profileInfo.UserInfo.State = new StateDto { Flag = false, Message = "User Don't Have Posts" }; ;
