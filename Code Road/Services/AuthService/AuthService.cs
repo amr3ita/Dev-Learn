@@ -51,8 +51,23 @@ namespace Code_Road.Services.PostService.AuthService
         public async Task<List<UsersDto>> GetAllUsers()
         {
             var admin = await GetCurrentUserAsync();
+            var usersDtoList = new List<UsersDto>();
             if (admin.IsAdmin == true)
-                return await _userManager.Users.Select(u => new UsersDto { Name = $"{u.FirstName} {u.LastName}", UserName = u.UserName, Email = u.Email }).ToListAsync();
+            {
+                var users = await _userManager.Users.ToListAsync();
+                foreach (var user in users)
+                {
+                    var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+                    usersDtoList.Add(new UsersDto
+                    {
+                        Name = $"{user.FirstName} {user.LastName}",
+                        UserName = user.UserName,
+                        Email = user.Email,
+                        IsAdmin = isAdmin
+                    });
+                }
+                return usersDtoList;
+            }
             return null;
         }
 
