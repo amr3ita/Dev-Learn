@@ -52,6 +52,7 @@ namespace Code_Road.Services.CommentService
                 {
                     State = state,
                     Id = comment.Id,
+                    UserId = comment.UserId,
                     Content = comment.Content,
                     UserName = await _authService.GetUserName(comment.UserId),
                     UserImage = await _userService.GetUserImage(comment.UserId),
