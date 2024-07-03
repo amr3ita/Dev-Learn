@@ -30,7 +30,7 @@ namespace Code_Road.Services.PostService
         public async Task<List<PostAndCommentsDto>> GetAllAsync()
         {
 
-            var postsIds = _context.Posts.Select(p => p.Id).ToList();
+            var postsIds = _context.Posts.OrderByDescending(i => i.Up).Select(p => p.Id).ToList();
             List<PostAndCommentsDto> posts = new List<PostAndCommentsDto>();
             //Posts Not Found
             if (postsIds is null)
