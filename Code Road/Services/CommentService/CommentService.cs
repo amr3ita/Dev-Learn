@@ -36,7 +36,20 @@ namespace Code_Road.Services.CommentService
                 return commentDtos;
 
             }
-            List<Comment> comments = await _context.Comments.Where(t => t.PostId == PostId).ToListAsync();
+            state.Flag = true;
+            state.Message = "comment Added Successfully";
+            var comments = await _context.Comments.Include(u => u.User).OrderByDescending(i => i.Up).Where(t => t.PostId == PostId).Select(comment => new CommentDto
+            {
+                State = state,
+                Id = comment.Id,
+                UserId = comment.UserId,
+                Content = comment.Content,
+                UserName = comment.User.FirstName + " " + comment.User.LastName,//await _authService.GetUserName(comment.UserId),
+                UserImage = comment.User.Image.ImageUrl,// await _userService.GetUserImage(comment.UserId),
+                Up = comment.Up,
+                Down = comment.Down,
+                Date = comment.Date
+            }).ToListAsync();
             if (comments.Count <= 0)
             {
                 state.Flag = false;
@@ -44,25 +57,8 @@ namespace Code_Road.Services.CommentService
                 commentDtos.Add(new CommentDto() { State = state });
                 return commentDtos;
             }
-            state.Flag = true;
-            state.Message = "comment Added Successfully";
-            foreach (Comment comment in comments)
-            {
-                CommentDto commentDto = new CommentDto()
-                {
-                    State = state,
-                    Id = comment.Id,
-                    UserId = comment.UserId,
-                    Content = comment.Content,
-                    UserName = await _authService.GetUserName(comment.UserId),
-                    UserImage = await _userService.GetUserImage(comment.UserId),
-                    Up = comment.Up,
-                    Down = comment.Down,
-                    Date = DateTime.Now,
-                };
-                commentDtos.Add(commentDto);
-            }
-            return commentDtos;
+
+            return comments;
         }
         public async Task<CommentDto> EditComment(int commentId, string userId, EditDto model)
         {
