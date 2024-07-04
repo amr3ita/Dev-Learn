@@ -305,8 +305,7 @@ namespace Code_Road.Services.UserService
                    Date = p.Date,
                    Image_url = p.Images.Where(i => i.UserId == p.User.Id && i.PostId == p.Id).Select(i => i.ImageUrl).ToList()
                })
-               .OrderByDescending(p => p.Date.Date == today ? 1 : 0) // Today's posts first
-               .ThenByDescending(p => p.Date.Date) // Then by date 
+               .OrderByDescending(p => p.Date)
               .ToListAsync();
             //Posts Not Found
             if (posts is null)
