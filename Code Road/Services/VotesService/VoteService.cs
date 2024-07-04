@@ -35,7 +35,6 @@ namespace Code_Road.Services.VotesService
             if (post is null)
                 return state;
 
-            state.Message = "InValidInput {up = 1 , down = 0}";
             if (vote == 1 || vote == 0)
             {
                 if (postVote is not null)
@@ -61,23 +60,29 @@ namespace Code_Road.Services.VotesService
                         post.Up--;
                         post.Down++;
                         postVote.Vote = vote;
+                        _context.Posts.Update(post);
                         _context.Posts_Vote.Update(postVote);
+                        await _context.SaveChangesAsync();
+                        return new StateDto { Flag = true, Message = "Your Vote Updated" };
                     }
                     else if (postVote.Vote == 0 && vote == 1)
                     {
                         post.Up++;
                         post.Down--;
                         postVote.Vote = vote;
+                        _context.Posts.Update(post);
                         _context.Posts_Vote.Update(postVote);
+                        await _context.SaveChangesAsync();
+                        return new StateDto { Flag = true, Message = "Your Vote Updated" };
+                    }
+                    else
+                    {
+                        return new StateDto { Flag = true, Message = "something went wrong" };
                     }
                 }
                 else
                 {
-                    postVote = new PostVote { Vote = vote };
-                    postVote.PostId = postId;
-                    postVote.UserId = user.userInfo.Id;
-                    postVote.UserName = user.userInfo.UserName;
-                    postVote.ImageUrl = user.userImage;
+                    postVote = new PostVote { PostId = postId, Vote = vote, UserId = user.userInfo.Id, UserName = user.userInfo.UserName, ImageUrl = user.userImage };
                     await _context.Posts_Vote.AddAsync(postVote);
                     if (vote == 1)
                     {
@@ -87,14 +92,19 @@ namespace Code_Road.Services.VotesService
                     {
                         post.Down++;
                     }
+                    _context.Posts.Update(post);
+                    await _context.SaveChangesAsync();
+                    state.Flag = true;
+                    state.Message = "Voted Successfully";
+                    return state;
                 }
-                _context.Posts.Update(post);
-                await _context.SaveChangesAsync();
-                state.Flag = true;
-                state.Message = "Voted Successfully";
+            }
+            else
+            {
+                state.Flag = false;
+                state.Message = "InValidInput {up = 1 , down = 0}";
                 return state;
             }
-            return state;
         }
 
         public async Task<UserPostVotesDto> UserPostVotes(string userId)
@@ -127,7 +137,6 @@ namespace Code_Road.Services.VotesService
             if (comment is null)
                 return state;
 
-            state.Message = "InValidInput {up = 1 , down = 0}";
             if (vote == 1 || vote == 0)
             {
                 if (commentvote is not null)
@@ -153,23 +162,29 @@ namespace Code_Road.Services.VotesService
                         comment.Up--;
                         comment.Down++;
                         commentvote.Vote = vote;
+                        _context.Comments.Update(comment);
                         _context.Comments_Vote.Update(commentvote);
+                        await _context.SaveChangesAsync();
+                        return new StateDto { Flag = true, Message = "Your Vote Updated" };
                     }
                     else if (commentvote.Vote == 0 && vote == 1)
                     {
                         comment.Up++;
                         comment.Down--;
                         commentvote.Vote = vote;
+                        _context.Comments.Update(comment);
                         _context.Comments_Vote.Update(commentvote);
+                        await _context.SaveChangesAsync();
+                        return new StateDto { Flag = true, Message = "Your Vote Updated" };
+                    }
+                    else
+                    {
+                        return new StateDto { Flag = true, Message = "something went wrong" };
                     }
                 }
                 else
                 {
-                    commentvote = new CommentVote { Vote = vote };
-                    commentvote.CommentId = commentId;
-                    commentvote.UserId = user.userInfo.Id;
-                    commentvote.UserName = user.userInfo.UserName;
-                    commentvote.ImageUrl = user.userImage;
+                    commentvote = new CommentVote { CommentId = commentId, Vote = vote, UserId = user.userInfo.Id, UserName = user.userInfo.UserName, ImageUrl = user.userImage };
                     _context.Comments_Vote.Add(commentvote);
                     if (vote == 1)
                     {
@@ -179,14 +194,19 @@ namespace Code_Road.Services.VotesService
                     {
                         comment.Down++;
                     }
+                    _context.Comments.Update(comment);
+                    await _context.SaveChangesAsync();
+                    state.Flag = true;
+                    state.Message = "Voted Successfully";
+                    return state;
                 }
-                _context.Comments.Update(comment);
-                await _context.SaveChangesAsync();
-                state.Flag = true;
-                state.Message = "Voted Successfully";
+            }
+            else
+            {
+                state.Flag = false;
+                state.Message = "InValidInput {up = 1 , down = 0}";
                 return state;
             }
-            return state;
         }
 
         public async Task<UserCommentVotesDto> UserCommentVotes(string userId)

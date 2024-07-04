@@ -478,53 +478,150 @@ namespace Code_Road.Services.PostService.AuthService
                 return status;
             }
         }
+
         private async Task<StateDto> DeleteUserRelatedDataAsync(ApplicationUser user)
         {
             try
             {
                 var userId = user.Id;
 
-                // Delete comment votes
-                var commentVotes = await _context.Comments_Vote.Where(cv => cv.UserId == userId).ToListAsync();
-                _context.Comments_Vote.RemoveRange(commentVotes);
+                // Handle comment votes by this user
+                var userCommentVotes = await _context.Comments_Vote
+                    .Where(cv => cv.UserId == userId)
+                    .ToListAsync();
 
-                // Delete comments
-                var comments = await _context.Comments.Where(c => c.UserId == userId).ToListAsync();
-                _context.Comments.RemoveRange(comments);
+                foreach (var userCommentVote in userCommentVotes)
+                {
+                    var comment = await _context.Comments
+                        .FirstOrDefaultAsync(c => c.Id == userCommentVote.CommentId);
 
-                // Delete post votes
-                var postVotes = await _context.Posts_Vote.Where(pv => pv.UserId == userId).ToListAsync();
-                _context.Posts_Vote.RemoveRange(postVotes);
+                    if (comment != null)
+                    {
+                        if (userCommentVote.Vote == 1)
+                        {
+                            comment.Up--;
+                        }
+                        else if (userCommentVote.Vote == 0) // Assuming downvote is 0
+                        {
+                            comment.Down--;
+                        }
+                        _context.Entry(comment).State = EntityState.Modified;
+                    }
+                }
+                _context.Comments_Vote.RemoveRange(userCommentVotes);
 
-                // Delete posts (and their associated comments and comment votes)
-                var posts = await _context.Posts.Where(p => p.UserId == userId).ToListAsync();
+                // Save changes to ensure the updates are applied before further processing
+                await _context.SaveChangesAsync();
+
+                // Detach all tracked entities
+                _context.ChangeTracker.Clear();
+
+                // Handle comments and their votes by this user
+                var userComments = await _context.Comments
+                    .Where(c => c.UserId == userId)
+                    .ToListAsync();
+
+                foreach (var comment in userComments)
+                {
+                    var commentVotes = await _context.Comments_Vote
+                        .Where(cv => cv.CommentId == comment.Id)
+                        .ToListAsync();
+                    _context.Comments_Vote.RemoveRange(commentVotes);
+                }
+                _context.Comments.RemoveRange(userComments);
+
+                // Save changes to ensure the deletions are applied before further processing
+                await _context.SaveChangesAsync();
+
+                // Detach all tracked entities
+                _context.ChangeTracker.Clear();
+
+                // Handle post votes by this user
+                var userPostVotes = await _context.Posts_Vote
+                    .Where(pv => pv.UserId == userId)
+                    .ToListAsync();
+
+                foreach (var userPostVote in userPostVotes)
+                {
+                    var post = await _context.Posts
+                        .FirstOrDefaultAsync(p => p.Id == userPostVote.PostId);
+
+                    if (post != null)
+                    {
+                        if (userPostVote.Vote == 1)
+                        {
+                            post.Up--;
+                        }
+                        else if (userPostVote.Vote == 0) // Assuming downvote is 0
+                        {
+                            post.Down--;
+                        }
+                        _context.Entry(post).State = EntityState.Modified;
+                    }
+                }
+                _context.Posts_Vote.RemoveRange(userPostVotes);
+
+                // Save changes to ensure the updates are applied before further processing
+                await _context.SaveChangesAsync();
+
+                // Detach all tracked entities
+                _context.ChangeTracker.Clear();
+
+                // Handle posts and their votes and comments by this user
+                var posts = await _context.Posts
+                    .Where(p => p.UserId == userId)
+                    .ToListAsync();
+
                 foreach (var post in posts)
                 {
-                    // Delete comments and comment votes associated with each post
-                    var postComments = await _context.Comments.Where(c => c.PostId == post.Id).ToListAsync();
+                    // Handle comments and their votes associated with each post
+                    var postComments = await _context.Comments
+                        .Where(c => c.PostId == post.Id)
+                        .ToListAsync();
+
                     foreach (var postComment in postComments)
                     {
-                        var postCommentVotes = await _context.Comments_Vote.Where(cv => cv.CommentId == postComment.Id).ToListAsync();
+                        var postCommentVotes = await _context.Comments_Vote
+                            .Where(cv => cv.CommentId == postComment.Id)
+                            .ToListAsync();
                         _context.Comments_Vote.RemoveRange(postCommentVotes);
                     }
                     _context.Comments.RemoveRange(postComments);
 
-                    // Delete post votes associated with each post
-                    var postVotesForPost = await _context.Posts_Vote.Where(pv => pv.PostId == post.Id).ToListAsync();
+                    // Handle post votes associated with each post
+                    var postVotesForPost = await _context.Posts_Vote
+                        .Where(pv => pv.PostId == post.Id)
+                        .ToListAsync();
                     _context.Posts_Vote.RemoveRange(postVotesForPost);
                 }
-                _context.Posts.RemoveRange(posts);
+                _context.Posts.RemoveRange(posts); // here is line 598
 
                 // Save changes after deleting comments and posts
                 await _context.SaveChangesAsync();
 
+                // Detach all tracked entities
+                _context.ChangeTracker.Clear();
+
                 // Delete finished lessons
-                var finishedLessons = await _context.FinishedLessons.Where(fl => fl.UserId == userId).ToListAsync();
+                var finishedLessons = await _context.FinishedLessons
+                    .Where(fl => fl.UserId == userId)
+                    .ToListAsync();
                 _context.FinishedLessons.RemoveRange(finishedLessons);
 
+                // Save changes to ensure the deletions are applied before further processing
+                await _context.SaveChangesAsync();
+
+                // Detach all tracked entities
+                _context.ChangeTracker.Clear();
+
                 // Delete images
-                var images = await _context.Image.Where(i => i.UserId == userId).ToListAsync();
+                var images = await _context.Image
+                    .Where(i => i.UserId == userId)
+                    .ToListAsync();
                 _context.Image.RemoveRange(images);
+
+                // Save changes to ensure the deletions are applied before further processing
+                await _context.SaveChangesAsync();
 
                 // Delete the directory of this user and all its contents
                 string filepath = Path.Combine(_environment.WebRootPath, "Upload", "User", user.UserName);
@@ -616,3 +713,7 @@ namespace Code_Road.Services.PostService.AuthService
 
     }
 }
+/*
+ 482
+ 652
+ */
