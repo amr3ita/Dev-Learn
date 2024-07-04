@@ -396,24 +396,28 @@ namespace Code_Road.Services.PostService.AuthService
             try
             {
                 // Delete related data
-                await DeleteUserRelatedDataAsync(user);
-
-                // Delete user from role and delete user
-                var result = await _userManager.RemoveFromRoleAsync(user, "User");
-                if (result.Succeeded)
+                var isDone = await DeleteUserRelatedDataAsync(user);
+                if (isDone.Flag)
                 {
-                    result = await _userManager.DeleteAsync(user);
-                    await _context.SaveChangesAsync();
+                    // Delete user from role and delete user
+                    var result = await _userManager.RemoveFromRoleAsync(user, "User");
                     if (result.Succeeded)
                     {
-                        status.Flag = true;
-                        status.Message = "User Deleted Successfully";
-                        return status;
+                        result = await _userManager.DeleteAsync(user);
+                        await _context.SaveChangesAsync();
+                        if (result.Succeeded)
+                        {
+                            status.Flag = true;
+                            status.Message = "User Deleted Successfully";
+                            return status;
+                        }
                     }
-                }
 
+                    status.Flag = false;
+                    status.Message = string.Join("; ", result.Errors.Select(e => e.Description));
+                }
                 status.Flag = false;
-                status.Message = string.Join("; ", result.Errors.Select(e => e.Description));
+                status.Message = isDone.Message;
                 return status;
             }
             catch (Exception ex)
@@ -442,24 +446,29 @@ namespace Code_Road.Services.PostService.AuthService
             try
             {
                 // Delete related data
-                await DeleteUserRelatedDataAsync(currentUser);
-
-                // Delete user from role and delete user
-                var result = await _userManager.RemoveFromRolesAsync(currentUser, new List<string> { "User", "Admin" });
-                if (result.Succeeded)
+                var isDone = await DeleteUserRelatedDataAsync(currentUser);
+                if (isDone.Flag)
                 {
-                    result = await _userManager.DeleteAsync(currentUser);
-                    await _context.SaveChangesAsync();
+                    // Delete user from role and delete user
+                    var userRoles = await _userManager.GetRolesAsync(currentUser);
+                    var result = await _userManager.RemoveFromRolesAsync(currentUser, userRoles);
                     if (result.Succeeded)
                     {
-                        status.Flag = true;
-                        status.Message = "User Deleted Successfully";
-                        return status;
+                        result = await _userManager.DeleteAsync(currentUser);
+                        await _context.SaveChangesAsync();
+                        if (result.Succeeded)
+                        {
+                            status.Flag = true;
+                            status.Message = "User Deleted Successfully";
+                            return status;
+                        }
                     }
-                }
 
+                    status.Flag = false;
+                    status.Message = string.Join("; ", result.Errors.Select(e => e.Description));
+                }
                 status.Flag = false;
-                status.Message = string.Join("; ", result.Errors.Select(e => e.Description));
+                status.Message = isDone.Message;
                 return status;
             }
             catch (Exception ex)
@@ -469,51 +478,55 @@ namespace Code_Road.Services.PostService.AuthService
                 return status;
             }
         }
-        private async Task DeleteUserRelatedDataAsync(ApplicationUser user)
+        private async Task<StateDto> DeleteUserRelatedDataAsync(ApplicationUser user)
         {
-            var userId = user.Id;
-            // Delete comment Votes
-            _context.Comments_Vote.RemoveRange(await _context.Comments_Vote.Where(cv => cv.UserId == userId).ToListAsync());
-            // Delete comments
-            _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == userId).ToListAsync());
-            // Delete posts votes
-            _context.Posts_Vote.RemoveRange(await _context.Posts_Vote.Where(p => p.UserId == userId).ToListAsync());
-            // Delete posts
-            _context.Posts.RemoveRange(await _context.Posts.Where(p => p.UserId == userId).ToListAsync());
-            // Delete finished lessons
-            _context.FinishedLessons.RemoveRange(await _context.FinishedLessons.Where(fl => fl.UserId == userId).ToListAsync());
-            // Delete images
-            _context.Image.RemoveRange(await _context.Image.Where(i => i.UserId == userId).ToListAsync());
-            var httpContext = _httpContextAccessor.HttpContext;
-            string hosturl = $"{httpContext.Request.Scheme}://{httpContext.Request.Host}";
-
-            string filepath = _environment.WebRootPath + "\\Upload\\User\\" + user.UserName;
-            if (!Directory.Exists(filepath))
+            try
             {
-                Directory.CreateDirectory(filepath);
-            }
+                var userId = user.Id;
+                // Delete comment Votes
+                _context.Comments_Vote.RemoveRange(await _context.Comments_Vote.Where(cv => cv.UserId == userId).ToListAsync());
+                // Delete comments
+                _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == userId).ToListAsync());
+                // Delete posts votes
+                _context.Posts_Vote.RemoveRange(await _context.Posts_Vote.Where(p => p.UserId == userId).ToListAsync());
+                // Delete posts
+                _context.Posts.RemoveRange(await _context.Posts.Where(p => p.UserId == userId).ToListAsync());
+                // Delete finished lessons
+                _context.FinishedLessons.RemoveRange(await _context.FinishedLessons.Where(fl => fl.UserId == userId).ToListAsync());
+                // Delete images
+                _context.Image.RemoveRange(await _context.Image.Where(i => i.UserId == userId).ToListAsync());
 
-            string imgpath = Path.Combine(filepath, $"{user.UserName}.png");
-            if (File.Exists(imgpath))
-            {
-                File.Delete(imgpath);
-            }
-            // Unfollow users this user follows
-            var followers = await _userService.GetAllFollowers(userId);
-            foreach (var follower in followers.FollowersList)
-            {
-                await _userService.UnFollow(userId, follower.Id);
-            }
+                // Delete the directory of this user and all its contents
+                string filepath = Path.Combine(_environment.WebRootPath, "Upload", "User", user.UserName);
+                if (Directory.Exists(filepath))
+                {
+                    Directory.Delete(filepath, true);
+                }
 
-            // Remove this user from other users' following lists
-            var followings = await _userService.GetAllFollowing(userId);
-            foreach (var follow in followings.FollowingList)
-            {
-                await _userService.UnFollow(follow.Id, userId);
-            }
 
-            // Save changes to database
-            await _context.SaveChangesAsync();
+                // Unfollow users this user follows
+                var followers = await _userService.GetAllFollowers(userId);
+                foreach (var follower in followers.FollowersList)
+                {
+                    await _userService.UnFollow(userId, follower.Id);
+                }
+
+                // Remove this user from other users' following lists
+                var followings = await _userService.GetAllFollowing(userId);
+                foreach (var follow in followings.FollowingList)
+                {
+                    await _userService.UnFollow(follow.Id, userId);
+                }
+
+                // Save changes to database
+                await _context.SaveChangesAsync();
+                return new StateDto { Flag = true, Message = "Done" };
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return new StateDto { Flag = false, Message = $"Error: {ex.Message}" };
+            }
         }
 
         // get current logged-in user
