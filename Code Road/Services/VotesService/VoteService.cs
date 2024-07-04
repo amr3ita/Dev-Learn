@@ -114,8 +114,8 @@ namespace Code_Road.Services.VotesService
             if (posts.Count > 0)
             {
                 userPostVotes.Status = new StateDto { Flag = true, Message = $"user have vote {posts.Count} post" };
-                userPostVotes.UpPosts = posts.Where(p => p.Vote == 1).Select(p => p.Id).ToList();
-                userPostVotes.DownPosts = posts.Where(p => p.Vote == 0).Select(p => p.Id).ToList();
+                userPostVotes.UpPosts = posts.Where(p => p.Vote == 1).Select(p => p.PostId).ToList();
+                userPostVotes.DownPosts = posts.Where(p => p.Vote == 0).Select(p => p.PostId).ToList();
             }
             else
             {
@@ -216,8 +216,8 @@ namespace Code_Road.Services.VotesService
             if (comments.Count > 0)
             {
                 userPostVotes.Status = new StateDto { Flag = true, Message = $"user Up {comments.Count} comment" };
-                userPostVotes.UpComments = comments.Where(c => c.Vote == 1).Select(c => c.Id).ToList();
-                userPostVotes.DownComments = comments.Where(c => c.Vote == 0).Select(c => c.Id).ToList();
+                userPostVotes.UpComments = comments.Where(c => c.Vote == 1).Select(c => c.CommentId).ToList();
+                userPostVotes.DownComments = comments.Where(c => c.Vote == 0).Select(c => c.CommentId).ToList();
             }
             else
             {
