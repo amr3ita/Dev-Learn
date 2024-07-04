@@ -483,18 +483,48 @@ namespace Code_Road.Services.PostService.AuthService
             try
             {
                 var userId = user.Id;
-                // Delete comment Votes
-                _context.Comments_Vote.RemoveRange(await _context.Comments_Vote.Where(cv => cv.UserId == userId).ToListAsync());
+
+                // Delete comment votes
+                var commentVotes = await _context.Comments_Vote.Where(cv => cv.UserId == userId).ToListAsync();
+                _context.Comments_Vote.RemoveRange(commentVotes);
+
                 // Delete comments
-                _context.Comments.RemoveRange(await _context.Comments.Where(c => c.UserId == userId).ToListAsync());
-                // Delete posts votes
-                _context.Posts_Vote.RemoveRange(await _context.Posts_Vote.Where(p => p.UserId == userId).ToListAsync());
-                // Delete posts
-                _context.Posts.RemoveRange(await _context.Posts.Where(p => p.UserId == userId).ToListAsync());
+                var comments = await _context.Comments.Where(c => c.UserId == userId).ToListAsync();
+                _context.Comments.RemoveRange(comments);
+
+                // Delete post votes
+                var postVotes = await _context.Posts_Vote.Where(pv => pv.UserId == userId).ToListAsync();
+                _context.Posts_Vote.RemoveRange(postVotes);
+
+                // Delete posts (and their associated comments and comment votes)
+                var posts = await _context.Posts.Where(p => p.UserId == userId).ToListAsync();
+                foreach (var post in posts)
+                {
+                    // Delete comments and comment votes associated with each post
+                    var postComments = await _context.Comments.Where(c => c.PostId == post.Id).ToListAsync();
+                    foreach (var postComment in postComments)
+                    {
+                        var postCommentVotes = await _context.Comments_Vote.Where(cv => cv.CommentId == postComment.Id).ToListAsync();
+                        _context.Comments_Vote.RemoveRange(postCommentVotes);
+                    }
+                    _context.Comments.RemoveRange(postComments);
+
+                    // Delete post votes associated with each post
+                    var postVotesForPost = await _context.Posts_Vote.Where(pv => pv.PostId == post.Id).ToListAsync();
+                    _context.Posts_Vote.RemoveRange(postVotesForPost);
+                }
+                _context.Posts.RemoveRange(posts);
+
+                // Save changes after deleting comments and posts
+                await _context.SaveChangesAsync();
+
                 // Delete finished lessons
-                _context.FinishedLessons.RemoveRange(await _context.FinishedLessons.Where(fl => fl.UserId == userId).ToListAsync());
+                var finishedLessons = await _context.FinishedLessons.Where(fl => fl.UserId == userId).ToListAsync();
+                _context.FinishedLessons.RemoveRange(finishedLessons);
+
                 // Delete images
-                _context.Image.RemoveRange(await _context.Image.Where(i => i.UserId == userId).ToListAsync());
+                var images = await _context.Image.Where(i => i.UserId == userId).ToListAsync();
+                _context.Image.RemoveRange(images);
 
                 // Delete the directory of this user and all its contents
                 string filepath = Path.Combine(_environment.WebRootPath, "Upload", "User", user.UserName);
@@ -502,7 +532,6 @@ namespace Code_Road.Services.PostService.AuthService
                 {
                     Directory.Delete(filepath, true);
                 }
-
 
                 // Unfollow users this user follows
                 var followers = await _userService.GetAllFollowers(userId);
@@ -525,9 +554,10 @@ namespace Code_Road.Services.PostService.AuthService
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                return new StateDto { Flag = false, Message = $"Error: {ex.Message}" };
+                return new StateDto { Flag = false, Message = $"Error: {ex}" };
             }
         }
+
 
         // get current logged-in user
         public async Task<AllUserDataDto> GetCurrentUserAsync()
