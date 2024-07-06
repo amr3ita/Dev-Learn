@@ -114,6 +114,7 @@ namespace Code_Road.Services.PostService.AuthService
             }
 
             await _userManager.AddToRoleAsync(user, Roles.User.ToString());
+            await SetDefaultAvatarImage(user.Id);
 
             // Create Token
             var jwtSecurityToken = await CreateJwtToken(user);
@@ -125,7 +126,6 @@ namespace Code_Road.Services.PostService.AuthService
 
             state.Flag = true;
             state.Message = "Registration successful. Please check your email to verify your account.";
-            await SetDefaultAvatarImage(user.Id);
 
 
             return new AuthDto
